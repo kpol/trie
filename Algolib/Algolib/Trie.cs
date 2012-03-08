@@ -16,7 +16,7 @@ namespace AlgoLib
         private int count;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Trie{T}"/>.
+        /// Initializes a new instance of the <see cref="Trie{TValue}"/>.
         /// </summary>
         /// <param name="comparer">Comparer.</param>
         public Trie(IEqualityComparer<char> comparer)
@@ -25,7 +25,7 @@ namespace AlgoLib
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Trie{T}"/>.
+        /// Initializes a new instance of the <see cref="Trie{TValue}"/>.
         /// </summary>
         public Trie()
             : this(EqualityComparer<char>.Default)
@@ -94,7 +94,6 @@ namespace AlgoLib
         /// <param name="key">The key of the element to get or set.</param>
         /// <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is null.</exception>
         /// <exception cref="T:System.Collections.Generic.KeyNotFoundException">The property is retrieved and <paramref name="key"/> is not found.</exception>
-        /// <exception cref="T:System.NotSupportedException">The property is set and the <see cref="T:System.Collections.Generic.IDictionary`2"/> is read-only.</exception>
         public TValue this[string key]
         {
             get
@@ -125,13 +124,12 @@ namespace AlgoLib
         }
 
         /// <summary>
-        /// Adds an element with the provided charKey and value to the <see cref="Trie{T}"/>.
+        /// Adds an element with the provided charKey and value to the <see cref="Trie{TValue}"/>.
         /// </summary>
         /// <param name="key">The object to use as the charKey of the element to add.</param>
         /// <param name="value">The object to use as the value of the element to add.</param>
         /// <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is null.</exception>
-        /// <exception cref="T:System.ArgumentException">An element with the same charKey already exists in the <see cref="Trie{T}"/>.</exception>
-        /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.IDictionary`2"/> is read-only.</exception>
+        /// <exception cref="T:System.ArgumentException">An element with the same charKey already exists in the <see cref="Trie{TValue}"/>.</exception>
         public void Add(string key, TValue value)
         {
             if (key == null)
@@ -157,15 +155,20 @@ namespace AlgoLib
         }
 
         /// <summary>
-        /// Adds an item to the <see cref="Trie{T}"/>.
+        /// Adds an item to the <see cref="Trie{TValue}"/>.
         /// </summary>
-        /// <param name="item">The object to add to the <see cref="Trie{T}"/>.</param>
-        /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.</exception>
+        /// <param name="item">The object to add to the <see cref="Trie{TValue}"/>.</param>
+        /// <exception cref="T:System.ArgumentException">An element with the same charKey already exists in the <see cref="Trie{TValue}"/>.</exception>
         public void Add(TrieEntry<TValue> item)
         {
             Add(item.Key, item.Value);
         }
 
+        /// <summary>
+        /// Adds the elements of the specified collection to the <see cref="Trie{TValue}"/>.
+        /// </summary>
+        /// <param name="collection">The collection whose elements should be added to the <see cref="Trie{TValue}"/>. The items should have unique keys.</param>
+        /// <exception cref="T:System.ArgumentException">An element with the same charKey already exists in the <see cref="Trie{TValue}"/>.</exception>
         public void AddRange(IEnumerable<TrieEntry<TValue>> collection)
         {
             foreach (var item in collection)
@@ -199,6 +202,11 @@ namespace AlgoLib
             return TryGetValue(key, out value);
         }
 
+        /// <summary>
+        /// Gets items by key prefix.
+        /// </summary>
+        /// <param name="prefix">Key prefix.</param>
+        /// <returns>Collection of <see cref="TrieEntry{TValue}"/> items which have key with specified key.</returns>
         public IEnumerable<TrieEntry<TValue>> GetByPrefix(string prefix)
         {
             var node = root;
@@ -357,7 +365,7 @@ namespace AlgoLib
         }
 
         /// <summary>
-        /// <see cref="Trie{T}"/>'s node.
+        /// <see cref="Trie{TValue}"/>'s node.
         /// </summary>
         private sealed class TrieNode : IEnumerable<TrieNode>
         {
