@@ -1,12 +1,12 @@
 namespace AlgoLib
 {
     /// <summary>
-    /// Defines a key/value pair that can be set or retrieved from <see cref="Trie{T}"/>.
+    /// Defines a key/value pair that can be set or retrieved from <see cref="Trie{TValue}"/>.
     /// </summary>
     public struct TrieEntry<TValue>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TrieEntry{T}"/> structure with the specified key and value.
+        /// Initializes a new instance of the <see cref="TrieEntry{TValue}"/> structure with the specified key and value.
         /// </summary>
         /// <param name="key">The <see cref="string"/> object defined in each key/value pair.</param>
         /// <param name="value">The definition associated with key.</param>
