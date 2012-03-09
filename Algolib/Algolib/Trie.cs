@@ -47,17 +47,6 @@ namespace AlgoLib
         }
 
         /// <summary>
-        /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
-        /// </summary>
-        /// <returns>
-        /// true if the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only; otherwise, false.
-        /// </returns>
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
-
-        /// <summary>
         /// Gets an <see cref="T:System.Collections.Generic.ICollection`1"/> containing the keys of the <see cref="T:System.Collections.Generic.IDictionary`2"/>.
         /// </summary>
         /// <returns>
@@ -82,6 +71,14 @@ namespace AlgoLib
             get
             {
                 return GetAllNodes().Select(n => n.Value).ToArray();
+            }
+        }
+
+        bool ICollection<KeyValuePair<string, TValue>>.IsReadOnly
+        {
+            get
+            {
+                return false;
             }
         }
 
@@ -262,9 +259,7 @@ namespace AlgoLib
                 return false;
             }
 
-            node.Remove();
-
-            count--;
+            RemoveNode(node);
 
             return true;
         }
@@ -317,7 +312,7 @@ namespace AlgoLib
 
         void ICollection<KeyValuePair<string, TValue>>.CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            Array.Copy(GetAllNodes().Select(n => new KeyValuePair<string, TValue>(n.Key, n.Value)).ToArray(), 0, array, arrayIndex, Count);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -325,16 +320,28 @@ namespace AlgoLib
             return GetEnumerator();
         }
 
-        /// <summary>
-        /// Removes the first occurrence of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1"/>.
-        /// </summary>
-        /// <returns>
-        /// true if <paramref name="item"/> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1"/>; otherwise, false. This method also returns false if <paramref name="item"/> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1"/>.
-        /// </returns>
-        /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param><exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.</exception>
         bool ICollection<KeyValuePair<string, TValue>>.Remove(KeyValuePair<string, TValue> item)
         {
-            throw new NotImplementedException();
+            TrieNode node;
+
+            if (!TryGetNode(item.Key, out node))
+            {
+                return false;
+            }
+
+            if (!node.IsTerminal)
+            {
+                return false;
+            }
+
+            if (!EqualityComparer<TValue>.Default.Equals(node.Value, item.Value))
+            {
+                return false;
+            }
+
+            RemoveNode(node);
+
+            return true;
         }
 
         private static void SetTerminalNode(TrieNode node, string key, TValue value)
@@ -347,6 +354,12 @@ namespace AlgoLib
         private IEnumerable<TrieNode> GetAllNodes()
         {
             return root.GetAllNodes();
+        }
+
+        private void RemoveNode(TrieNode node)
+        {
+            node.Remove();
+            count--;
         }
 
         private bool TryGetNode(string key, out TrieNode node)
@@ -367,7 +380,7 @@ namespace AlgoLib
         /// <summary>
         /// <see cref="Trie{TValue}"/>'s node.
         /// </summary>
-        private sealed class TrieNode : IEnumerable<TrieNode>
+        private sealed class TrieNode
         {
             private readonly IEqualityComparer<char> comparer;
 
@@ -402,20 +415,10 @@ namespace AlgoLib
             ////        return result.ToString();
             ////    }
             ////}
-            
+
             internal TValue Value { get; set; }
 
             private TrieNode Parent { get; set; }
-
-            public IEnumerator<TrieNode> GetEnumerator()
-            {
-                return GetAllNodes().GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
 
             internal TrieNode Add(char key)
             {

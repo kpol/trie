@@ -114,6 +114,35 @@ namespace AlgoLib.Tests
         }
 
         [TestMethod]
+        public void CopyTo()
+        {
+            var trie = new Trie<bool>();
+
+            trie.Add("ABC", true);
+            trie.Add("AB", false);
+            trie.Add("ADE", true);
+            trie.Add("ABCDE", false);
+
+            var destinationArray = new KeyValuePair<string, bool>[6];
+
+            ((ICollection<KeyValuePair<string, bool>>)trie).CopyTo(destinationArray, 1);
+
+            var result = destinationArray.Where(i => i.Key != null).OrderBy(i => i.Key).ToArray();
+
+            var expected = new[]
+                {
+                    new KeyValuePair<string, bool>("AB", false), 
+                    new KeyValuePair<string, bool>("ABC", true), 
+                    new KeyValuePair<string, bool>("ABCDE", false), 
+                    new KeyValuePair<string, bool>("ADE", true)
+                };
+
+            Assert.AreEqual(new KeyValuePair<string, bool>(), destinationArray[0]);
+            Assert.AreEqual(new KeyValuePair<string, bool>(), destinationArray[destinationArray.Length - 1]);
+            Assert.IsTrue(expected.SequenceEqual(result));
+        }
+
+        [TestMethod]
         public void GetByPrefix()
         {
             var trie = new Trie<bool>();
@@ -142,8 +171,19 @@ namespace AlgoLib.Tests
             trie.Add("ABCDE", false);
 
             var result = trie.Select(kvp => kvp.Key).OrderBy(w => w).ToArray();
+            var resultEnumerator =
+                trie.OfType<KeyValuePair<string, bool>>().Select(k => k.Key).OrderBy(w => w).ToArray();
 
             CollectionAssert.AreEqual(new[] { "AB", "ABC", "ABCDE", "ADE" }, result);
+            CollectionAssert.AreEqual(new[] { "AB", "ABC", "ABCDE", "ADE" }, resultEnumerator);
+        }
+
+        [TestMethod]
+        public void IsReadOnly()
+        {
+            var trie = new Trie<bool>();
+
+            Assert.IsFalse(((IDictionary<string, bool>)trie).IsReadOnly);
         }
 
         [TestMethod]
@@ -187,18 +227,41 @@ namespace AlgoLib.Tests
         }
 
         [TestMethod]
+        public void KeysValues()
+        {
+            var trie = new Trie<bool>();
+
+            trie.Add("ABC", false);
+            trie.Add("AB", true);
+            trie.Add("ADE", false);
+            trie.Add("ABCDE", true);
+
+            Assert.IsTrue(new[] { "AB", "ABC", "ABCDE", "ADE" }.SequenceEqual(trie.Keys.OrderBy(s => s)));
+            Assert.IsTrue(new[] { false, false, true, true }.SequenceEqual(trie.Values.OrderBy(s => s)));
+        }
+
+        [TestMethod]
         public void Remove()
         {
+            const int InitialCount = 5;
+
             var trie = new Trie<bool>();
 
             trie.Add("ABC", false);
             trie.Add("AB", false);
             trie.Add("ADE", false);
             trie.Add("ABCDE", false);
+            trie.Add("X", false);
 
-            Assert.IsTrue(trie.Remove("ABCDE"));
-            Assert.AreEqual(3, trie.Count);
-            Assert.IsTrue(trie.ContainsKey("ABC"));
+            Assert.IsFalse((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("ABCDE", true)));
+            Assert.AreEqual(InitialCount, trie.Count);
+            Assert.IsTrue((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("ABCDE", false)));
+            Assert.AreEqual(InitialCount - 1, trie.Count);
+            Assert.IsTrue(trie.Remove("X"));
+            Assert.AreEqual(InitialCount - 2, trie.Count);
+            Assert.IsTrue(trie.Remove("ABC"));
+            Assert.AreEqual(InitialCount - 3, trie.Count);
+            Assert.IsFalse(trie.ContainsKey("ABC"));
             Assert.IsTrue(trie.ContainsKey("AB"));
             Assert.IsTrue(trie.ContainsKey("ADE"));
         }
