@@ -270,7 +270,8 @@ namespace AlgoLib
         /// <returns>
         /// true if the object that implements <see cref="T:System.Collections.Generic.IDictionary`2"/> contains an element with the specified key; otherwise, false.
         /// </returns>
-        /// <param name="key">The key whose value to get.</param><param name="value">When this method returns, the value associated with the specified key, if the key is found; otherwise, the default value for the type of the <paramref name="value"/> parameter. This parameter is passed uninitialized.</param>
+        /// <param name="key">The key whose value to get.</param>
+        /// <param name="value">When this method returns, the value associated with the specified key, if the key is found; otherwise, the default value for the type of the <paramref name="value"/> parameter. This parameter is passed uninitialized.</param>
         /// <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is null.</exception>
         public bool TryGetValue(string key, out TValue value)
         {
@@ -278,7 +279,6 @@ namespace AlgoLib
             {
                 throw new ArgumentNullException("key");
             }
-
 
             TrieNode node;
             value = default(TValue);
@@ -288,9 +288,14 @@ namespace AlgoLib
                 return false;
             }
 
+            if (!node.IsTerminal)
+            {
+                return false;
+            }
+
             value = node.Value;
 
-            return node.IsTerminal;
+            return true;
         }
 
         void ICollection<KeyValuePair<string, TValue>>.Add(KeyValuePair<string, TValue> item)

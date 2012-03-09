@@ -72,7 +72,9 @@ namespace AlgoLib.Tests
             Assert.IsTrue(t.Contains(new KeyValuePair<string, bool>("ADE", true)));
             Assert.IsTrue(t.Contains(new KeyValuePair<string, bool>("ABCDE", false)));
 
+            Assert.IsFalse(t.Contains(new KeyValuePair<string, bool>("X", false)));
             Assert.IsFalse(t.Contains(new KeyValuePair<string, bool>("ADE", false)));
+            Assert.IsFalse(t.Contains(new KeyValuePair<string, bool>("ABCD", false)));
         }
 
         [TestMethod]
@@ -224,6 +226,10 @@ namespace AlgoLib.Tests
             trie["ABC"] = true;
 
             Assert.AreEqual(true, trie["ABC"]);
+
+            trie["AB"] = true;
+
+            Assert.AreEqual(true, trie["AB"]);
         }
 
         [TestMethod]
@@ -245,14 +251,13 @@ namespace AlgoLib.Tests
         {
             const int InitialCount = 5;
 
-            var trie = new Trie<bool>();
+            var trie = new Trie<bool>
+                {
+                    { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false }, { "X", false } 
+                };
 
-            trie.Add("ABC", false);
-            trie.Add("AB", false);
-            trie.Add("ADE", false);
-            trie.Add("ABCDE", false);
-            trie.Add("X", false);
-
+            Assert.IsFalse((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("XY", true)));
+            Assert.IsFalse((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("ABCD", true)));
             Assert.IsFalse((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("ABCDE", true)));
             Assert.AreEqual(InitialCount, trie.Count);
             Assert.IsTrue((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("ABCDE", false)));
@@ -269,9 +274,7 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void RemoveNotExists()
         {
-            var trie = new Trie<bool>();
-
-            trie.Add("ABC", false);
+            var trie = new Trie<bool> { { "ABC", false } };
 
             Assert.IsFalse(trie.Remove("A"));
             Assert.IsFalse(trie.Remove("X"));
@@ -281,10 +284,34 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void RemoveNullKey()
         {
-            var trie = new Trie<bool>();
+            var trie = new Trie<bool> { { "ABC", false } };
 
-            trie.Add("ABC", false);
             trie.Remove(null);
+        }
+
+        [TestMethod]
+        public void TryGetValue()
+        {
+            const string ExpectedValue = "value";
+
+            var trie = new Trie<string> { { "ABC", ExpectedValue } };
+
+            string value;
+
+            Assert.IsTrue(trie.TryGetValue("ABC", out value));
+            Assert.AreEqual(ExpectedValue, value);
+            Assert.IsFalse(trie.TryGetValue("A", out value));
+            Assert.IsNull(value);
+        }
+
+        [ExpectedException(typeof(ArgumentNullException))]
+        [TestMethod]
+        public void TryGetValueKeyIsNull()
+        {
+            var trie = new Trie<bool> { { "ABC", false } };
+
+            bool value;
+            trie.TryGetValue(null, out value);
         }
     }
 }
