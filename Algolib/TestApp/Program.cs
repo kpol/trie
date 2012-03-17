@@ -17,7 +17,6 @@ namespace TestApp
             const int PrefixLength = 1;
 
             var prefixes = GetAllMatches(Enumerable.Range(65, 26).Select(i => ((char)i)).ToArray(), PrefixLength)
-                .Distinct()
                 .ToArray();
 
             var words = GetWords();
