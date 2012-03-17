@@ -111,8 +111,8 @@ In following table are presented results of searching items by prefix:
 Tests using brute-force prefix generator. 
 <table>
   <tr>
-    <th rowspan="2">Prefixes count:</th>
     <th rowspan="2">Prefix length:</th>
+    <th rowspan="2">Prefixes count:</th>
     <th colspan="2">Taken time, ms</th>
   </tr>
   <tr>
@@ -120,34 +120,34 @@ Tests using brute-force prefix generator.
     <th>Trie &ndash; GetByPrefix</th>
   </tr>
   <tr>
-    <td>25</td>
     <td>1</td>
-    <td>295</td>
+    <td>26</td>
+    <td>307</td>
+    <td>167</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>676</td>
+    <td>7675</td>
+    <td>163</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>17576</td>
+    <td>197057</td>
     <td>168</td>
   </tr>
   <tr>
-    <td>675</td>
-    <td>2</td>
-    <td>7557</td>
-    <td>166</td>
-  </tr>
-  <tr>
-    <td>17575</td>
-    <td>3</td>
-    <td>191905</td>
-    <td>170</td>
-  </tr>
-  <tr>
-    <td>456975</td>
     <td>4</td>
+    <td>456976</td>
     <td>&mdash;</td>
-    <td>303</td>
+    <td>267</td>
   </tr>
   <tr>
-    <td>11881375</td>
     <td>5</td>
+    <td>11881376</td>
     <td>&mdash;</td>
-    <td>4295</td>
+    <td>4632</td>
   </tr>
 </table>
 ------

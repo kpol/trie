@@ -17,7 +17,6 @@ namespace TestApp
             const int PrefixLength = 1;
 
             var prefixes = GetAllMatches(Enumerable.Range(65, 26).Select(i => ((char)i)).ToArray(), PrefixLength)
-                .Distinct()
                 .ToArray();
 
             var words = GetWords();
@@ -37,7 +36,6 @@ namespace TestApp
             Console.WriteLine("ToArray method: {0}", stopWatch.ElapsedMilliseconds);
 
             stopWatch.Restart();
-
 
             var trie = new Trie<bool>();
             trie.AddRange(words.Select(w => new TrieEntry<bool>(w, false)));
@@ -70,10 +68,11 @@ namespace TestApp
                 current[i] = chars[0];
             }
 
-            while (Increment(indexes, current, chars))
+            do
             {
                 yield return new string(current);
             }
+            while (Increment(indexes, current, chars));
         }
 
         private static bool Increment(int[] indexes, char[] current, char[] chars)
