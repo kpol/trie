@@ -111,7 +111,7 @@ namespace AlgoLib
 
                 if (TryGetNode(key, out node))
                 {
-                    SetTerminalNode(node, key, value);
+                    SetTerminalNode(node, value);
                 }
                 else
                 {
@@ -146,7 +146,7 @@ namespace AlgoLib
                 throw new ArgumentException(string.Format("An element with the same charKey already exists: '{0}'", key), "key");
             }
 
-            SetTerminalNode(node, key, value);
+            SetTerminalNode(node, value);
 
             count++;
         }
@@ -349,10 +349,9 @@ namespace AlgoLib
             return true;
         }
 
-        private static void SetTerminalNode(TrieNode node, string key, TValue value)
+        private static void SetTerminalNode(TrieNode node, TValue value)
         {
             node.IsTerminal = true;
-            node.Key = key;
             node.Value = value;
         }
 
@@ -402,24 +401,34 @@ namespace AlgoLib
 
             internal bool IsTerminal { get; set; }
 
-            internal string Key { get; set; }
+            internal string Key
+            {
+                get
+                {
+                    ////var result = new StringBuilder().Append(keyChar);
 
-            ////internal string Key
-            ////{
-            ////    get
-            ////    {
-            ////        var result = new StringBuilder().Append(keyChar);
+                    ////TrieNode node = this;
 
-            ////        TrieNode node = this;
+                    ////while ((node = node.Parent).Parent != null)
+                    ////{
+                    ////    result.Insert(0, node.keyChar);
+                    ////}
 
-            ////        while ((node = node.Parent).Parent != null)
-            ////        {
-            ////            result.Insert(0, node.keyChar);
-            ////        }
+                    ////return result.ToString();
+                    
+                    var stack = new Stack<char>();
+                    stack.Push(keyChar);
 
-            ////        return result.ToString();
-            ////    }
-            ////}
+                    TrieNode node = this;
+
+                    while ((node = node.Parent).Parent != null)
+                    {
+                        stack.Push(node.keyChar);
+                    }
+
+                    return new string(stack.ToArray());
+                }
+            }
 
             internal TValue Value { get; set; }
 

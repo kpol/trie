@@ -107,5 +107,48 @@ In following table are presented results of searching items by prefix:
     <td>4162</td>
   </tr>
 </table>
+
+Tests using brute-force prefix generator. 
+<table>
+  <tr>
+    <th rowspan="2">Prefixes count:</th>
+    <th rowspan="2">Prefix length:</th>
+    <th colspan="2">Taken time, ms</th>
+  </tr>
+  <tr>
+    <th>LINQ &ndash; StartsWith</th>
+    <th>Trie &ndash; GetByPrefix</th>
+  </tr>
+  <tr>
+    <td>25</td>
+    <td>1</td>
+    <td>295</td>
+    <td>168</td>
+  </tr>
+  <tr>
+    <td>675</td>
+    <td>2</td>
+    <td>7557</td>
+    <td>166</td>
+  </tr>
+  <tr>
+    <td>17575</td>
+    <td>3</td>
+    <td>191905</td>
+    <td>170</td>
+  </tr>
+  <tr>
+    <td>456975</td>
+    <td>4</td>
+    <td>&mdash;</td>
+    <td>303</td>
+  </tr>
+  <tr>
+    <td>11881375</td>
+    <td>5</td>
+    <td>&mdash;</td>
+    <td>4295</td>
+  </tr>
+</table>
 ------
 &copy; Kirill Polishchuk
