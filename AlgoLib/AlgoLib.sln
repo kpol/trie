@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Algolib", "Algolib\Algolib.csproj", "{9478B3A1-3BC4-477C-A57A-1BBC3ADEC637}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgoLib", "AlgoLib\AlgoLib.csproj", "{9478B3A1-3BC4-477C-A57A-1BBC3ADEC637}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Algolib.Tests", "Algolib.Tests\Algolib.Tests.csproj", "{ED24C25E-D3EA-41CC-B31F-FC99551E69F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgoLib.Tests", "Algolib.Tests\AlgoLib.Tests.csproj", "{ED24C25E-D3EA-41CC-B31F-FC99551E69F7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5FD2973C-C75F-437A-A5EE-63006A513285}"
 	ProjectSection(SolutionItems) = preProject
-		Algolib.vsmdi = Algolib.vsmdi
+		AlgoLib.vsmdi = AlgoLib.vsmdi
 		Local.testsettings = Local.testsettings
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = Algolib.vsmdi
+		CategoryFile = AlgoLib.vsmdi
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Kirill Polishchuk")]
-[assembly: AssemblyProduct("Algolib")]
+[assembly: AssemblyProduct("AlgoLib")]
 [assembly: AssemblyCopyright("Copyright © Kirill Polishchuk 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
