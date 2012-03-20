@@ -102,7 +102,7 @@ namespace TestApp
         /// <returns>Distinct set of words.</returns>
         private static IEnumerable<string> GetWords()
         {
-            var path = Path.Combine(@"..\..\..\Algolib.Tests\cache", VocabularyPath);
+            var path = Path.Combine(@"..\..\..\AlgoLib.Tests\cache", VocabularyPath);
             return File.ReadAllLines(path);
         }
     }

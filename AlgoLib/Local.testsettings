@@ -2,7 +2,7 @@
 <TestSettings name="Local" id="90b39290-0983-444f-aee4-978cf168251e" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Description>These are default test settings for a local test run.</Description>
   <Deployment>
-    <DeploymentItem filename="Algolib.Tests\cache\" />
+    <DeploymentItem filename="AlgoLib.Tests\cache\" />
   </Deployment>
   <Execution>
     <TestTypeSpecific>
@@ -28,7 +28,7 @@
           <Configuration>
             <CodeCoverage xmlns="">
               <Regular>
-                <CodeCoverageItem binaryFile="Algolib\bin\Debug\Algolib.dll" pdbFile="Algolib\bin\Debug\Algolib.pdb" instrumentInPlace="true" />
+                <CodeCoverageItem binaryFile="AlgoLib\bin\Debug\AlgoLib.dll" pdbFile="AlgoLib\bin\Debug\AlgoLib.pdb" instrumentInPlace="true" />
               </Regular>
             </CodeCoverage>
           </Configuration>
