@@ -180,7 +180,7 @@ namespace AlgoLib
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only. </exception>
         public void Clear()
         {
-            root.Children.Clear();
+            root.Clear();
             count = 0;
         }
 
@@ -210,7 +210,7 @@ namespace AlgoLib
 
             foreach (var item in prefix)
             {
-                if (!node.Children.TryGetValue(item, out node))
+                if (!node.TryGetNode(item, out node))
                 {
                     return Enumerable.Empty<TrieEntry<TValue>>();
                 }
@@ -386,6 +386,8 @@ namespace AlgoLib
         /// </summary>
         private sealed class TrieNode
         {
+            private readonly Dictionary<char, TrieNode> children;
+
             private readonly IEqualityComparer<char> comparer;
 
             private readonly char keyChar;
@@ -394,10 +396,8 @@ namespace AlgoLib
             {
                 this.keyChar = keyChar;
                 this.comparer = comparer;
-                Children = new Dictionary<char, TrieNode>(comparer);
+                children = new Dictionary<char, TrieNode>(comparer);
             }
-
-            internal Dictionary<char, TrieNode> Children { get; private set; }
 
             internal bool IsTerminal { get; set; }
 
@@ -438,22 +438,27 @@ namespace AlgoLib
             {
                 TrieNode childNode;
 
-                if (!Children.TryGetValue(key, out childNode))
+                if (!children.TryGetValue(key, out childNode))
                 {
                     childNode = new TrieNode(key, comparer)
                                     {
                                         Parent = this
                                     };
 
-                    Children.Add(key, childNode);
+                    children.Add(key, childNode);
                 }
 
                 return childNode;
             }
 
+            internal void Clear()
+            {
+                children.Clear();
+            }
+
             internal IEnumerable<TrieNode> GetAllNodes()
             {
-                foreach (var child in Children)
+                foreach (var child in children)
                 {
                     if (child.Value.IsTerminal)
                     {
@@ -477,7 +482,7 @@ namespace AlgoLib
                     yield return new TrieEntry<TValue>(Key, Value);
                 }
 
-                foreach (var item in Children)
+                foreach (var item in children)
                 {
                     foreach (var element in item.Value.GetByPrefix())
                     {
@@ -490,9 +495,9 @@ namespace AlgoLib
             {
                 IsTerminal = false;
 
-                if (Children.Count == 0 && Parent != null)
+                if (children.Count == 0 && Parent != null)
                 {
-                    Parent.Children.Remove(keyChar);
+                    Parent.children.Remove(keyChar);
 
                     if (!Parent.IsTerminal)
                     {
@@ -503,7 +508,7 @@ namespace AlgoLib
 
             internal bool TryGetNode(char key, out TrieNode node)
             {
-                return Children.TryGetValue(key, out node);
+                return children.TryGetValue(key, out node);
             }
         }
     }
