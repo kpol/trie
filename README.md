@@ -40,7 +40,7 @@ In following table are presented results of searching items by prefix:
 <table>
   <tr>
     <th rowspan="2">Prefixes count:</th>
-    <th colspan="2">Taken time, ms</th>
+    <th colspan="2">Time, ms</th>
   </tr>
   <tr>
     <th>LINQ &ndash; StartsWith</th>
@@ -113,7 +113,7 @@ Tests using brute-force prefix generator.
   <tr>
     <th rowspan="2">Prefix length:</th>
     <th rowspan="2">Prefixes count:</th>
-    <th colspan="2">Taken time, ms</th>
+    <th colspan="2">Time, ms</th>
   </tr>
   <tr>
     <th>LINQ &ndash; StartsWith</th>
