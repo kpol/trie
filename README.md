@@ -150,5 +150,6 @@ Tests using brute-force prefix generator.
     <td>4632</td>
   </tr>
 </table>
+
 ------
 &copy; Kirill Polishchuk
