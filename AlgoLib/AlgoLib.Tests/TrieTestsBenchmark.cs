@@ -22,6 +22,7 @@ namespace AlgoLib.Tests
         public TestContext TestContext { get; set; }
 
         [TestMethod]
+        [Ignore]
         public void BenchmarkTest()
         {
             const int Count = 1;
@@ -70,6 +71,7 @@ namespace AlgoLib.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public void CheckTest()
         {
             var words = GetWords();
