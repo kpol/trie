@@ -174,6 +174,7 @@ namespace AlgoLib.Tests
         {
             var trie = new Trie<bool> {{"ABC", false}, {"AB", false}, {"ADE", true}, {"ABCDE", false}};
 
+            // ReSharper disable once UnusedVariable
             var result = trie["A"];
         }
 
