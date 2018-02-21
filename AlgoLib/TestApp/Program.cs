@@ -14,15 +14,22 @@ namespace TestApp
 
         public static void Main(string[] args)
         {
-            const int PrefixLength = 1;
+            TrieSetWork();
+            TrieWork();
+            //TrieSetWork();
+        }
 
-            var prefixes = GetAllMatches(Enumerable.Range(65, 26).Select(i => ((char)i)).ToArray(), PrefixLength)
+        private static void TrieWork()
+        {
+            const int prefixLength = 1;
+
+            var prefixes = GetAllMatches(Enumerable.Range(65, 26).Select(i => (char)i).ToArray(), prefixLength)
                 .ToArray();
 
-            var words = GetWords();
+            var words = GetWords().ToArray();
 
             Console.WriteLine(
-                "Words count: {0}. Prefixes count: {1}.", words.Count(), prefixes.Length);
+                "Words count: {0}. Prefixes count: {1}.", words.Length, prefixes.Length);
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -46,16 +53,67 @@ namespace TestApp
 
             stopWatch.Restart();
 
-
+            int prefixesCount = 0;
             foreach (var prefix in prefixes)
             {
                 var resultTrie = trie.GetByPrefix(prefix).Select(w => w.Key).ToArray();
+                prefixesCount = resultTrie.Length;
             }
 
 
             stopWatch.Stop();
 
             Console.WriteLine("Trie find prefixes: {0}", stopWatch.ElapsedMilliseconds);
+            Console.WriteLine($"Prefixes found: {prefixesCount}");
+        }
+
+        private static void TrieSetWork()
+        {
+            const int prefixLength = 1;
+
+            var prefixes = GetAllMatches(Enumerable.Range(65, 26).Select(i => (char)i).ToArray(), prefixLength)
+                .ToArray();
+
+            var words = GetWords().ToArray();
+
+            Console.WriteLine(
+                "Words count: {0}. Prefixes count: {1}.", words.Length, prefixes.Length);
+
+            var stopWatch = Stopwatch.StartNew();
+
+            foreach (var prefix in prefixes)
+            {
+                var resultArray = words.Where(w => w.StartsWith(prefix)).ToArray();
+            }
+
+            stopWatch.Stop();
+
+            Console.WriteLine("ToArray method: {0}", stopWatch.ElapsedMilliseconds);
+
+            stopWatch.Restart();
+
+            var trie = new TrieSet<char>();
+            trie.AddRange(words);
+
+            stopWatch.Stop();
+
+            Console.WriteLine("Build tree: {0}", stopWatch.ElapsedMilliseconds);
+
+            stopWatch.Restart();
+
+            int prefixesCount = 0;
+
+            foreach (var prefix in prefixes)
+            {
+                var resultTrie = trie.GetByPrefix(prefix).Select(w => w).ToArray();
+                prefixesCount = resultTrie.Length;
+            }
+
+
+            stopWatch.Stop();
+
+            Console.WriteLine("Trie find prefixes: {0}", stopWatch.ElapsedMilliseconds);
+            Console.WriteLine($"Prefixes found: {prefixesCount}");
         }
 
         private static IEnumerable<string> GetAllMatches(char[] chars, int length)
