@@ -13,42 +13,34 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void AddNullKey()
         {
-            var trie = new Trie<bool>();
-
-            trie.Add(null, false);
+            // ReSharper disable once ObjectCreationAsStatement
+            new Trie<bool> {{null, false}};
         }
 
         [TestMethod]
         public void AddRange()
         {
-            const int Count = 10;
+            const int count = 10;
 
             var trie = new Trie<bool>();
 
-            trie.AddRange(Enumerable.Range(0, Count).Select(i => new TrieEntry<bool>(i.ToString(), false)));
+            trie.AddRange(Enumerable.Range(0, count).Select(i => new TrieEntry<bool>(i.ToString(), false)));
 
-            Assert.AreEqual(Count, trie.Count);
+            Assert.AreEqual(count, trie.Count);
         }
 
         [ExpectedException(typeof(ArgumentException))]
         [TestMethod]
         public void AddWithSameKey()
         {
-            var trie = new Trie<bool>();
-
-            trie.Add("a", false);
-            trie.Add("a", true);
+            // ReSharper disable once ObjectCreationAsStatement
+             new Trie<bool> {{"a", false}, {"a", true}};
         }
 
         [TestMethod]
         public void Clear()
         {
-            var trie = new Trie<bool>();
-
-            trie.Add("ABC", false);
-            trie.Add("AB", false);
-            trie.Add("ADE", false);
-            trie.Add("ABCDE", false);
+            var trie = new Trie<bool> {{"ABC", false}, {"AB", false}, {"ADE", false}, {"ABCDE", false}};
 
             trie.Clear();
 
@@ -58,14 +50,9 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void Contains()
         {
-            var trie = new Trie<bool>();
+            var trie = new Trie<bool> {{"ABC", false}, {"AB", false}, {"ADE", true}, {"ABCDE", false}};
 
-            trie.Add("ABC", false);
-            trie.Add("AB", false);
-            trie.Add("ADE", true);
-            trie.Add("ABCDE", false);
-
-            var t = trie as IDictionary<string, bool>;
+            var t = (IDictionary<string, bool>)trie;
 
             Assert.IsTrue(t.Contains(new KeyValuePair<string, bool>("ABC", false)));
             Assert.IsTrue(t.Contains(new KeyValuePair<string, bool>("AB", false)));
@@ -80,12 +67,8 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void ContainsKey()
         {
-            var trie = new Trie<bool>();
+            var trie = new Trie<bool> {{"ABC", false}, {"AB", false}, {"ADE", false}, {"ABCDE", false}};
 
-            trie.Add("ABC", false);
-            trie.Add("AB", false);
-            trie.Add("ADE", false);
-            trie.Add("ABCDE", false);
 
             Assert.IsTrue(trie.ContainsKey("ABC"));
             Assert.IsTrue(trie.ContainsKey("AB"));
@@ -100,12 +83,8 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void ContainsKeyClear()
         {
-            var trie = new Trie<bool>();
+            var trie = new Trie<bool> {{"ABC", false}, {"AB", false}, {"ADE", false}, {"ABCDE", false}};
 
-            trie.Add("ABC", false);
-            trie.Add("AB", false);
-            trie.Add("ADE", false);
-            trie.Add("ABCDE", false);
 
             trie.Clear();
 
@@ -118,12 +97,8 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void CopyTo()
         {
-            var trie = new Trie<bool>();
+            var trie = new Trie<bool> {{"ABC", true}, {"AB", false}, {"ADE", true}, {"ABCDE", false}};
 
-            trie.Add("ABC", true);
-            trie.Add("AB", false);
-            trie.Add("ADE", true);
-            trie.Add("ABCDE", false);
 
             var destinationArray = new KeyValuePair<string, bool>[6];
 
@@ -147,10 +122,8 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void GetByPrefix()
         {
-            var trie = new Trie<bool>();
+            var trie = new Trie<bool> {{"ABC", false}, {"AB", false}};
 
-            trie.Add("ABC", false);
-            trie.Add("AB", false);
             (trie as ICollection<KeyValuePair<string, bool>>).Add(new KeyValuePair<string, bool>("ADE", false));
             trie.Add(new TrieEntry<bool>("ABCDE", false));
 
@@ -165,12 +138,8 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void GetEnumerator()
         {
-            var trie = new Trie<bool>();
+            var trie = new Trie<bool> {{"ABC", false}, {"AB", false}, {"ADE", false}, {"ABCDE", false}};
 
-            trie.Add("ABC", false);
-            trie.Add("AB", false);
-            trie.Add("ADE", false);
-            trie.Add("ABCDE", false);
 
             var result = trie.Select(kvp => kvp.Key).OrderBy(w => w).ToArray();
             var resultEnumerator =
@@ -191,12 +160,7 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void ItemsGet()
         {
-            var trie = new Trie<bool>();
-
-            trie.Add("ABC", false);
-            trie.Add("AB", false);
-            trie.Add("ADE", true);
-            trie.Add("ABCDE", false);
+            var trie = new Trie<bool> {{"ABC", false}, {"AB", false}, {"ADE", true}, {"ABCDE", false}};
 
             Assert.AreEqual(false, trie["ABC"]);
             Assert.AreEqual(false, trie["AB"]);
@@ -208,12 +172,7 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void ItemsGetException()
         {
-            var trie = new Trie<bool>();
-
-            trie.Add("ABC", false);
-            trie.Add("AB", false);
-            trie.Add("ADE", true);
-            trie.Add("ABCDE", false);
+            var trie = new Trie<bool> {{"ABC", false}, {"AB", false}, {"ADE", true}, {"ABCDE", false}};
 
             var result = trie["A"];
         }
@@ -221,9 +180,7 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void ItemsSet()
         {
-            var trie = new Trie<bool>();
-
-            trie["ABC"] = true;
+            var trie = new Trie<bool> {["ABC"] = true};
 
             Assert.AreEqual(true, trie["ABC"]);
 
@@ -235,12 +192,7 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void KeysValues()
         {
-            var trie = new Trie<bool>();
-
-            trie.Add("ABC", false);
-            trie.Add("AB", true);
-            trie.Add("ADE", false);
-            trie.Add("ABCDE", true);
+            var trie = new Trie<bool> {{"ABC", false}, {"AB", true}, {"ADE", false}, {"ABCDE", true}};
 
             Assert.IsTrue(new[] { "AB", "ABC", "ABCDE", "ADE" }.SequenceEqual(trie.Keys.OrderBy(s => s)));
             Assert.IsTrue(new[] { false, false, true, true }.SequenceEqual(trie.Values.OrderBy(s => s)));
@@ -249,23 +201,23 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void Remove()
         {
-            const int InitialCount = 5;
+            const int initialCount = 5;
 
             var trie = new Trie<bool>
                 {
                     { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false }, { "X", false } 
                 };
 
-            Assert.IsFalse((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("XY", true)));
-            Assert.IsFalse((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("ABCD", true)));
-            Assert.IsFalse((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("ABCDE", true)));
-            Assert.AreEqual(InitialCount, trie.Count);
-            Assert.IsTrue((trie as IDictionary<string, bool>).Remove(new KeyValuePair<string, bool>("ABCDE", false)));
-            Assert.AreEqual(InitialCount - 1, trie.Count);
+            Assert.IsFalse(((IDictionary<string, bool>)trie).Remove(new KeyValuePair<string, bool>("XY", true)));
+            Assert.IsFalse(((IDictionary<string, bool>)trie).Remove(new KeyValuePair<string, bool>("ABCD", true)));
+            Assert.IsFalse(((IDictionary<string, bool>)trie).Remove(new KeyValuePair<string, bool>("ABCDE", true)));
+            Assert.AreEqual(initialCount, trie.Count);
+            Assert.IsTrue(((IDictionary<string, bool>)trie).Remove(new KeyValuePair<string, bool>("ABCDE", false)));
+            Assert.AreEqual(initialCount - 1, trie.Count);
             Assert.IsTrue(trie.Remove("X"));
-            Assert.AreEqual(InitialCount - 2, trie.Count);
+            Assert.AreEqual(initialCount - 2, trie.Count);
             Assert.IsTrue(trie.Remove("ABC"));
-            Assert.AreEqual(InitialCount - 3, trie.Count);
+            Assert.AreEqual(initialCount - 3, trie.Count);
             Assert.IsFalse(trie.ContainsKey("ABC"));
             Assert.IsTrue(trie.ContainsKey("AB"));
             Assert.IsTrue(trie.ContainsKey("ADE"));
@@ -284,22 +236,24 @@ namespace AlgoLib.Tests
         [TestMethod]
         public void RemoveNullKey()
         {
+            // ReSharper disable once CollectionNeverQueried.Local
             var trie = new Trie<bool> { { "ABC", false } };
 
+            // ReSharper disable once AssignNullToNotNullAttribute
             trie.Remove(null);
         }
 
         [TestMethod]
         public void TryGetValue()
         {
-            const string ExpectedValue = "value";
+            const string expectedValue = "value";
 
-            var trie = new Trie<string> { { "ABC", ExpectedValue } };
+            var trie = new Trie<string> { { "ABC", expectedValue } };
 
             string value;
 
             Assert.IsTrue(trie.TryGetValue("ABC", out value));
-            Assert.AreEqual(ExpectedValue, value);
+            Assert.AreEqual(expectedValue, value);
             Assert.IsFalse(trie.TryGetValue("A", out value));
             Assert.IsNull(value);
         }
@@ -311,6 +265,7 @@ namespace AlgoLib.Tests
             var trie = new Trie<bool> { { "ABC", false } };
 
             bool value;
+            // ReSharper disable once AssignNullToNotNullAttribute
             trie.TryGetValue(null, out value);
         }
     }

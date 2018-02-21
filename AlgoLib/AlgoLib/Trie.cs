@@ -11,9 +11,9 @@ namespace AlgoLib
     /// <typeparam name="TValue">The type of values in the trie.</typeparam>
     public class Trie<TValue> : IDictionary<string, TValue>
     {
-        private readonly TrieNode root;
+        private readonly TrieNode _root;
 
-        private int count;
+        private int _count;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Trie{TValue}"/>.
@@ -21,7 +21,7 @@ namespace AlgoLib
         /// <param name="comparer">Comparer.</param>
         public Trie(IEqualityComparer<char> comparer)
         {
-            root = new TrieNode(char.MinValue, comparer);
+            _root = new TrieNode(char.MinValue, comparer);
         }
 
         /// <summary>
@@ -38,13 +38,7 @@ namespace AlgoLib
         /// <returns>
         /// The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"/>.
         /// </returns>
-        public int Count
-        {
-            get
-            {
-                return count;
-            }
-        }
+        public int Count => _count;
 
         /// <summary>
         /// Gets an <see cref="T:System.Collections.Generic.ICollection`1"/> containing the keys of the <see cref="T:System.Collections.Generic.IDictionary`2"/>.
@@ -52,13 +46,7 @@ namespace AlgoLib
         /// <returns>
         /// An <see cref="T:System.Collections.Generic.ICollection`1"/> containing the keys of the object that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
         /// </returns>
-        public ICollection<string> Keys
-        {
-            get
-            {
-                return GetAllNodes().Select(n => n.Key).ToArray();
-            }
-        }
+        public ICollection<string> Keys => GetAllNodes().Select(n => n.Key).ToArray();
 
         /// <summary>
         /// Gets an <see cref="T:System.Collections.Generic.ICollection`1"/> containing the values in the <see cref="T:System.Collections.Generic.IDictionary`2"/>.
@@ -66,21 +54,9 @@ namespace AlgoLib
         /// <returns>
         /// An <see cref="T:System.Collections.Generic.ICollection`1"/> containing the values in the object that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
         /// </returns>
-        public ICollection<TValue> Values
-        {
-            get
-            {
-                return GetAllNodes().Select(n => n.Value).ToArray();
-            }
-        }
+        public ICollection<TValue> Values => GetAllNodes().Select(n => n.Value).ToArray();
 
-        bool ICollection<KeyValuePair<string, TValue>>.IsReadOnly
-        {
-            get
-            {
-                return false;
-            }
-        }
+        bool ICollection<KeyValuePair<string, TValue>>.IsReadOnly => false;
 
         /// <summary>
         /// Gets or sets the element with the specified key.
@@ -131,10 +107,10 @@ namespace AlgoLib
         {
             if (key == null)
             {
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
             }
 
-            var node = root;
+            var node = _root;
 
             foreach (var c in key)
             {
@@ -143,12 +119,12 @@ namespace AlgoLib
 
             if (node.IsTerminal)
             {
-                throw new ArgumentException(string.Format("An element with the same charKey already exists: '{0}'", key), "key");
+                throw new ArgumentException($"An element with the same charKey already exists: '{key}'", nameof(key));
             }
 
             SetTerminalNode(node, value);
 
-            count++;
+            _count++;
         }
 
         /// <summary>
@@ -180,8 +156,8 @@ namespace AlgoLib
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only. </exception>
         public void Clear()
         {
-            root.Clear();
-            count = 0;
+            _root.Clear();
+            _count = 0;
         }
 
         /// <summary>
@@ -206,7 +182,7 @@ namespace AlgoLib
         /// <returns>Collection of <see cref="TrieEntry{TValue}"/> items which have key with specified key.</returns>
         public IEnumerable<TrieEntry<TValue>> GetByPrefix(string prefix)
         {
-            var node = root;
+            var node = _root;
 
             foreach (var item in prefix)
             {
@@ -244,7 +220,7 @@ namespace AlgoLib
         {
             if (key == null)
             {
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
             }
 
             TrieNode node;
@@ -277,7 +253,7 @@ namespace AlgoLib
         {
             if (key == null)
             {
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
             }
 
             TrieNode node;
@@ -357,18 +333,18 @@ namespace AlgoLib
 
         private IEnumerable<TrieNode> GetAllNodes()
         {
-            return root.GetAllNodes();
+            return _root.GetAllNodes();
         }
 
         private void RemoveNode(TrieNode node)
         {
             node.Remove();
-            count--;
+            _count--;
         }
 
         private bool TryGetNode(string key, out TrieNode node)
         {
-            node = root;
+            node = _root;
 
             foreach (var c in key)
             {
@@ -386,17 +362,17 @@ namespace AlgoLib
         /// </summary>
         private sealed class TrieNode
         {
-            private readonly Dictionary<char, TrieNode> children;
+            private readonly Dictionary<char, TrieNode> _children;
 
-            private readonly IEqualityComparer<char> comparer;
+            private readonly IEqualityComparer<char> _comparer;
 
-            private readonly char keyChar;
+            private readonly char _keyChar;
 
             internal TrieNode(char keyChar, IEqualityComparer<char> comparer)
             {
-                this.keyChar = keyChar;
-                this.comparer = comparer;
-                children = new Dictionary<char, TrieNode>(comparer);
+                _keyChar = keyChar;
+                _comparer = comparer;
+                _children = new Dictionary<char, TrieNode>(comparer);
             }
 
             internal bool IsTerminal { get; set; }
@@ -417,13 +393,13 @@ namespace AlgoLib
                     ////return result.ToString();
                     
                     var stack = new Stack<char>();
-                    stack.Push(keyChar);
+                    stack.Push(_keyChar);
 
                     TrieNode node = this;
 
                     while ((node = node.Parent).Parent != null)
                     {
-                        stack.Push(node.keyChar);
+                        stack.Push(node._keyChar);
                     }
 
                     return new string(stack.ToArray());
@@ -438,14 +414,14 @@ namespace AlgoLib
             {
                 TrieNode childNode;
 
-                if (!children.TryGetValue(key, out childNode))
+                if (!_children.TryGetValue(key, out childNode))
                 {
-                    childNode = new TrieNode(key, comparer)
+                    childNode = new TrieNode(key, _comparer)
                                     {
                                         Parent = this
                                     };
 
-                    children.Add(key, childNode);
+                    _children.Add(key, childNode);
                 }
 
                 return childNode;
@@ -453,12 +429,12 @@ namespace AlgoLib
 
             internal void Clear()
             {
-                children.Clear();
+                _children.Clear();
             }
 
             internal IEnumerable<TrieNode> GetAllNodes()
             {
-                foreach (var child in children)
+                foreach (var child in _children)
                 {
                     if (child.Value.IsTerminal)
                     {
@@ -482,7 +458,7 @@ namespace AlgoLib
                     yield return new TrieEntry<TValue>(Key, Value);
                 }
 
-                foreach (var item in children)
+                foreach (var item in _children)
                 {
                     foreach (var element in item.Value.GetByPrefix())
                     {
@@ -495,9 +471,9 @@ namespace AlgoLib
             {
                 IsTerminal = false;
 
-                if (children.Count == 0 && Parent != null)
+                if (_children.Count == 0 && Parent != null)
                 {
-                    Parent.children.Remove(keyChar);
+                    Parent._children.Remove(_keyChar);
 
                     if (!Parent.IsTerminal)
                     {
@@ -508,7 +484,7 @@ namespace AlgoLib
 
             internal bool TryGetNode(char key, out TrieNode node)
             {
-                return children.TryGetValue(key, out node);
+                return _children.TryGetValue(key, out node);
             }
         }
     }
