@@ -3,6 +3,8 @@ Trie
 **Trie** (a.k.a. prefix tree)  is an ordered tree data structure that is used to store an associative array where the keys are usually strings. All the descendants of a node have a common prefix of the string associated with that node, and the root is associated with the empty string.  
 *Reference*: [Wikipedia &ndash; trie](http://en.wikipedia.org/wiki/Trie)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/8rbgoxqio76ynj4h?svg=true)](https://ci.appveyor.com/project/kpol/trie)
+
 Advantages
 ------
  - Looking up keys is faster. Looking up a key of length **key** takes **O(|key|)** time
