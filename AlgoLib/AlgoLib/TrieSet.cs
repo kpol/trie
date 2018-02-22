@@ -26,7 +26,7 @@ namespace AlgoLib
         public int Count { get; private set; }
 
         /// <inheritdoc />
-        public bool IsReadOnly => false;
+        bool ICollection<IEnumerable<T>>.IsReadOnly => false;
 
         /// <inheritdoc />
         public IEnumerator<IEnumerable<T>> GetEnumerator()
@@ -141,7 +141,6 @@ namespace AlgoLib
                 return false;
             }
 
-            //item = GetFullKey(node);
             item = node.Item;
 
             return true;
