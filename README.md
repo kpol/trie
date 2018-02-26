@@ -19,19 +19,18 @@ Trie initialization:
 
     var trie = new Trie<TValue>();
 
-or using constructor which accepts `IComparer<char>` interface:
+or using constructor which accepts `IEqualityComparer<char> comparer` interface:
 
     var trie = new Trie<TValue>(comparer);
 
 To add items to trie:
 
     trie.Add("key", value);
-    trie.Add(new TrieEntry<TValue>("key2", value));
     trie.AddRange(trieEntries);
 
-The `Add`, `AddRange` methods throw `ArgumentException` if a value with the specified key already exists, however setting the `Item` property overwrites the old value. In other words, `Trie<TValue>` has the same behavior as `Dictionary<TKey, TValue>`.
+The `Add`, `AddRange` methods throw `ArgumentNullException` if a value with the specified key already exists, however setting the `Item` property overwrites the old value. In other words, `Trie<TValue>` has the same behavior as `Dictionary<TKey, TValue>`.
 
-The main advantage of trie is really fast prefix lookup. To find all items of `Trie<TValue>` which have keys with given prefix use `GetByPrefix` method which returns `IEnumerable<TrieEntry<TValue>>`:
+The main advantage of trie is really fast prefix lookup. To find all items of `Trie<TValue>` which have keys with given prefix use `GetByPrefix` method which returns `IEnumerable<StringEntry<TValue>>`:
 
     var result = trie.GetByPrefix("ABC");
 
