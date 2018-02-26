@@ -45,7 +45,7 @@ namespace TestApp
             stopWatch.Restart();
 
             var trie = new Trie<bool>();
-            trie.AddRange(words.Select(w => new TrieEntry<bool>(w, false)));
+            trie.AddRange(words.Select(w => new StringEntry<bool>(w, false)));
 
             stopWatch.Stop();
 

@@ -24,7 +24,7 @@ namespace AlgoLib.Tests
 
             var trie = new Trie<bool>();
 
-            trie.AddRange(Enumerable.Range(0, count).Select(i => new TrieEntry<bool>(i.ToString(), false)));
+            trie.AddRange(Enumerable.Range(0, count).Select(i => new StringEntry<bool>(i.ToString(), false)));
 
             Assert.AreEqual(count, trie.Count);
         }
@@ -125,7 +125,7 @@ namespace AlgoLib.Tests
             var trie = new Trie<bool> {{"ABC", false}, {"AB", false}};
 
             (trie as ICollection<KeyValuePair<string, bool>>).Add(new KeyValuePair<string, bool>("ADE", false));
-            trie.Add(new TrieEntry<bool>("ABCDE", false));
+            trie.Add("ABCDE", false);
 
             var result = trie.GetByPrefix("ABC").Select(t => t.Key).OrderBy(t => t);
 

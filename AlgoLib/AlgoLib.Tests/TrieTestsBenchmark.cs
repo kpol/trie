@@ -49,7 +49,7 @@ namespace AlgoLib.Tests
             stopWatch.Restart();
 
             var trie = new Trie<bool>();
-            trie.AddRange(words.Select(w => new TrieEntry<bool>(w, false)));
+            trie.AddRange(words.Select(w => new StringEntry<bool>(w, false)));
 
             stopWatch.Stop();
 
@@ -77,7 +77,7 @@ namespace AlgoLib.Tests
             var words = GetWords();
 
             var trie = new Trie<bool>();
-            trie.AddRange(words.Select(w => new TrieEntry<bool>(w, false)));
+            trie.AddRange(words.Select(w => new StringEntry<bool>(w, false)));
 
             foreach (var prefix in Prefixes)
             {

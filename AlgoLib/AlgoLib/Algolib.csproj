@@ -38,6 +38,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trie.cs" />
     <Compile Include="TrieDictionary.cs" />
+    <Compile Include="StringEntry.cs" />
     <Compile Include="TrieEntry.cs" />
     <Compile Include="TrieSet.cs" />
   </ItemGroup>
