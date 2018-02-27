@@ -5,7 +5,7 @@ namespace AlgoLib
     /// <summary>
     /// Defines a key/value pair that can be set or retrieved from <see cref="Trie{TValue}"/>.
     /// </summary>
-    public class TrieEntry<TKey, TValue>
+    public struct TrieEntry<TKey, TValue>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="StringEntry{TValue}"/> structure with the specified key and value.
