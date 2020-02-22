@@ -18,4 +18,9 @@ jobs:
     - name: Test
       run: dotnet test ./src/*.sln
     - name: Pack
-      run: dotnet pack ./src/*.sln
+      run: dotnet pack ./src/*.sln --configuration Release
+    - name: Download artifact
+      uses: actions/download-artifact@v1.0.0
+      with:
+        name: NuGet package
+        path: /home/runner/work/trie/trie/src/KTrie/bin/Release/*.nupkg
