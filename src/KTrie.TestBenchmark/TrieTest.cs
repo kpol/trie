@@ -32,7 +32,7 @@ namespace KTrie.TestBenchmark
         }
 
         [Benchmark]
-        public ICollection<string> Trie()
+        public ICollection<string> Trie_GetByPrefix()
         {
             var result = new List<string>();
 
@@ -45,7 +45,7 @@ namespace KTrie.TestBenchmark
         }
 
         [Benchmark]
-        public ICollection<string> LinqStartsWith()
+        public ICollection<string> Linq_StartsWith()
         {
             var result = new List<string>();
 
