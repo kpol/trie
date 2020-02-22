@@ -12,6 +12,10 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 2.2.108
+        dotnet-version: 3.1.102
     - name: Build with dotnet
-      run: dotnet build --configuration Release
+      run: dotnet build ./src/*.sln --configuration Release
+    - name: Test
+      run: dotnet test ./src/*.sln
+    - name: Pack
+      run: dotnet pack ./src/*.sln
