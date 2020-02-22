@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AlgoLib
+namespace KTrie
 {
     /// <summary>
     /// Implementation of trie data structure.
@@ -53,7 +53,6 @@ namespace AlgoLib
         /// </returns>
         public ICollection<TValue> Values => _trie.Values.ToArray();
 
-        /// <inheritdoc />
         bool ICollection<KeyValuePair<string, TValue>>.IsReadOnly => false;
 
         /// <summary>
@@ -67,12 +66,9 @@ namespace AlgoLib
         /// <exception cref="T:System.Collections.Generic.KeyNotFoundException">The property is retrieved and <paramref name="key"/> is not found.</exception>
         public TValue this[string key]
         {
-            get
-            {
-                return _trie[key];
-            }
+            get => _trie[key];
 
-            set { _trie[key] = value; }
+            set => _trie[key] = value;
         }
 
         /// <summary>
@@ -106,10 +102,7 @@ namespace AlgoLib
         /// Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1"/>.
         /// </summary>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only. </exception>
-        public void Clear()
-        {
-            _trie.Clear();
-        }
+        public void Clear() => _trie.Clear();
 
         /// <summary>
         /// Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2"/> contains an element with the specified charKey.
@@ -119,20 +112,15 @@ namespace AlgoLib
         /// </returns>
         /// <param name="key">The charKey to locate in the <see cref="T:System.Collections.Generic.IDictionary`2"/>.</param>
         /// <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is null.</exception>
-        public bool ContainsKey(string key)
-        {
-            return _trie.ContainsKey(key);
-        }
+        public bool ContainsKey(string key) => _trie.ContainsKey(key);
 
         /// <summary>
         /// Gets items by key prefix.
         /// </summary>
         /// <param name="prefix">Key prefix.</param>
         /// <returns>Collection of <see cref="StringEntry{TValue}"/> items which have key with specified key.</returns>
-        public IEnumerable<StringEntry<TValue>> GetByPrefix(string prefix)
-        {
-            return _trie.GetByPrefix(prefix).Select(i => new StringEntry<TValue>(new string(i.Key.ToArray()), i.Value));
-        }
+        public IEnumerable<StringEntry<TValue>> GetByPrefix(string prefix) => 
+            _trie.GetByPrefix(prefix).Select(i => new StringEntry<TValue>(new string(i.Key.ToArray()), i.Value));
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
@@ -141,10 +129,8 @@ namespace AlgoLib
         /// A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
         /// </returns>
         /// <filterpriority>1</filterpriority>
-        public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
-        {
-            return _trie.Select(i => new KeyValuePair<string, TValue>(new string(i.Key.ToArray()), i.Value)).GetEnumerator();
-        }
+        public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator() => 
+            _trie.Select(i => new KeyValuePair<string, TValue>(new string(i.Key.ToArray()), i.Value)).GetEnumerator();
 
         /// <summary>
         /// Removes the element with the specified charKey from the <see cref="T:System.Collections.Generic.IDictionary`2"/>.
@@ -155,10 +141,7 @@ namespace AlgoLib
         /// <param name="key">The charKey of the element to remove.</param>
         /// <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is null.</exception>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.IDictionary`2"/> is read-only.</exception>
-        public bool Remove(string key)
-        {
-            return _trie.Remove(key);
-        }
+        public bool Remove(string key) => _trie.Remove(key);
 
         /// <summary>
         /// Gets the value associated with the specified key.
@@ -169,39 +152,20 @@ namespace AlgoLib
         /// <param name="key">The key whose value to get.</param>
         /// <param name="value">When this method returns, the value associated with the specified key, if the key is found; otherwise, the default value for the type of the <paramref name="value"/> parameter. This parameter is passed uninitialized.</param>
         /// <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is null.</exception>
-        public bool TryGetValue(string key, out TValue value)
-        {
-            return _trie.TryGetValue(key, out value);
-        }
+        public bool TryGetValue(string key, out TValue value) => _trie.TryGetValue(key, out value);
 
-        /// <inheritdoc />
-        void ICollection<KeyValuePair<string, TValue>>.Add(KeyValuePair<string, TValue> item)
-        {
+        void ICollection<KeyValuePair<string, TValue>>.Add(KeyValuePair<string, TValue> item) => 
             Add(item.Key, item.Value);
-        }
 
-        /// <inheritdoc />
-        bool ICollection<KeyValuePair<string, TValue>>.Contains(KeyValuePair<string, TValue> item)
-        {
-            return ((IDictionary<IEnumerable<char>, TValue>)_trie).Contains(new KeyValuePair<IEnumerable<char>, TValue>(item.Key, item.Value));
-        }
+        bool ICollection<KeyValuePair<string, TValue>>.Contains(KeyValuePair<string, TValue> item) => 
+            ((IDictionary<IEnumerable<char>, TValue>)_trie).Contains(new KeyValuePair<IEnumerable<char>, TValue>(item.Key, item.Value));
 
-        /// <inheritdoc />
-        void ICollection<KeyValuePair<string, TValue>>.CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
-        {
+        void ICollection<KeyValuePair<string, TValue>>.CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex) => 
             Array.Copy(_trie.Select(i => new KeyValuePair<string, TValue>(new string(i.Key.ToArray()), i.Value)).ToArray(), 0, array, arrayIndex, Count);
-        }
 
-        /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        /// <inheritdoc />
-        bool ICollection<KeyValuePair<string, TValue>>.Remove(KeyValuePair<string, TValue> item)
-        {
-            return ((IDictionary<IEnumerable<char>, TValue>)_trie).Remove(new KeyValuePair<IEnumerable<char>, TValue>(item.Key, item.Value));
-        }
+        bool ICollection<KeyValuePair<string, TValue>>.Remove(KeyValuePair<string, TValue> item) => 
+            ((IDictionary<IEnumerable<char>, TValue>)_trie).Remove(new KeyValuePair<IEnumerable<char>, TValue>(item.Key, item.Value));
     }
 }
