@@ -1,16 +1,18 @@
-namespace AlgoLib
+﻿using System.Collections.Generic;
+
+namespace KTrie
 {
     /// <summary>
     /// Defines a key/value pair that can be set or retrieved from <see cref="Trie{TValue}"/>.
     /// </summary>
-    public struct StringEntry<TValue>
+    public struct TrieEntry<TKey, TValue>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="StringEntry{TValue}"/> structure with the specified key and value.
         /// </summary>
-        /// <param name="key">The <see cref="string"/> object defined in each key/value pair.</param>
+        /// <param name="key">The key.</param>
         /// <param name="value">The definition associated with key.</param>
-        public StringEntry(string key, TValue value)
+        public TrieEntry(IEnumerable<TKey> key, TValue value)
         {
             Key = key;
             Value = value;
@@ -19,7 +21,7 @@ namespace AlgoLib
         /// <summary>
         /// Gets the key in the key/value pair.
         /// </summary>
-        public string Key { get; }
+        public IEnumerable<TKey> Key { get; }
 
         /// <summary>
         /// Gets the value in the key/value pair.

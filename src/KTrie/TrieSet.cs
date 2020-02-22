@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AlgoLib
+namespace KTrie
 {
     public class TrieSet<T> : ICollection<IEnumerable<T>>
     {
@@ -19,28 +19,18 @@ namespace AlgoLib
         public TrieSet(IEqualityComparer<T> comparer)
         {
             _comparer = comparer;
-            _root = new TrieNode(default(T), comparer);
+            _root = new TrieNode(default, comparer);
         }
 
-        /// <inheritdoc />
         public int Count { get; private set; }
 
-        /// <inheritdoc />
         bool ICollection<IEnumerable<T>>.IsReadOnly => false;
 
-        /// <inheritdoc />
-        public IEnumerator<IEnumerable<T>> GetEnumerator()
-        {
-            return GetAllNodes(_root).Select(GetFullKey).GetEnumerator();
-        }
+        public IEnumerator<IEnumerable<T>> GetEnumerator() => 
+            GetAllNodes(_root).Select(GetFullKey).GetEnumerator();
 
-        /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        /// <inheritdoc />
         public void Add(IEnumerable<T> key)
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
@@ -59,11 +49,11 @@ namespace AlgoLib
             }
 
             node.IsTerminal = true;
+
             // ReSharper disable once PossibleMultipleEnumeration
             node.Item = key;
             Count++;
         }
-
 
         public void AddRange(IEnumerable<IEnumerable<T>> collection)
         {
@@ -75,14 +65,12 @@ namespace AlgoLib
             }
         }
 
-        /// <inheritdoc />
         public void Clear()
         {
             _root.Children.Clear();
             Count = 0;
         }
 
-        /// <inheritdoc />
         public bool Contains(IEnumerable<T> item)
         {
             var node = GetNode(item);
@@ -90,13 +78,11 @@ namespace AlgoLib
             return node != null && node.IsTerminal;
         }
 
-        /// <inheritdoc />
         void ICollection<IEnumerable<T>>.CopyTo(IEnumerable<T>[] array, int arrayIndex)
         {
             Array.Copy(GetAllNodes(_root).Select(GetFullKey).ToArray(), 0, array, arrayIndex, Count);
         }
 
-        /// <inheritdoc />
         public bool Remove(IEnumerable<T> key)
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
@@ -218,13 +204,13 @@ namespace AlgoLib
                         yield return GetFullKey(current);
                     }
 
-                    using (var enumrator = current.Children.GetEnumerator())
+                    using (var enumerator = current.Children.GetEnumerator())
                     {
-                        current = enumrator.MoveNext() ? enumrator.Current.Value : null;
+                        current = enumerator.MoveNext() ? enumerator.Current.Value : null;
 
-                        while (enumrator.MoveNext())
+                        while (enumerator.MoveNext())
                         {
-                            stack.Push(enumrator.Current.Value);
+                            stack.Push(enumerator.Current.Value);
                         }
                     }
                 }
@@ -275,9 +261,7 @@ namespace AlgoLib
 
         private TrieNode AddItem(TrieNode node, T key)
         {
-            TrieNode child;
-
-            if (!node.Children.TryGetValue(key, out child))
+            if (!node.Children.TryGetValue(key, out var child))
             {
                 child = new TrieNode(key, _comparer)
                 {
