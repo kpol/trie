@@ -17,3 +17,5 @@ jobs:
       run: dotnet build ./src/*.sln --configuration Release
     - name: Test
       run: dotnet test ./src/*.sln
+    - name: Pack
+      run: dotnet pack ./src/*.sln
