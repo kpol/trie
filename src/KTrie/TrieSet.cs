@@ -305,7 +305,7 @@ namespace KTrie
             }
         }
 
-        internal class TrieNode
+        internal sealed class TrieNode
         {
             public TrieNode(T key, IEqualityComparer<T> comparer)
             {
