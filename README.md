@@ -12,26 +12,32 @@ Advantages
  - Looking up prefixes is faster. Looking up a prefix takes **O(|prefix|)** time
  - Removing takes **O(|key|)** time
 
+The library provides four implementations of the trie data structure:
+ - `TrieSet<T>`
+ - `Trie<TKey, TValue>`
+ - `StringTrieSet`
+ - `StringTrie<TValue>`
+
 Tutorial
 ------
 `Trie<TValue>` implements `IDictionary<string, TValue>` interface.
 
 Trie initialization:
 
-    var trie = new Trie<TValue>();
+    var trie = new StringTrie<TValue>();
 
 or using constructor which accepts `IEqualityComparer<char> comparer` interface:
 
-    var trie = new Trie<TValue>(comparer);
+    var trie = new StringTrie<TValue>(comparer);
 
 To add items to trie:
 
     trie.Add("key", value);
     trie.AddRange(trieEntries);
 
-The `Add`, `AddRange` methods throw `ArgumentNullException` if a value with the specified key already exists, however setting the `Item` property overwrites the old value. In other words, `Trie<TValue>` has the same behavior as `Dictionary<TKey, TValue>`.
+The `Add`, `AddRange` methods throw `ArgumentNullException` if a value with the specified key already exists, however setting the `Item` property overwrites the old value. In other words, `StringTrie<TValue>` has the same behavior as `Dictionary<TKey, TValue>`.
 
-The main advantage of trie is really fast prefix lookup. To find all items of `Trie<TValue>` which have keys with given prefix use `GetByPrefix` method which returns `IEnumerable<StringEntry<TValue>>`:
+The main advantage of trie is really fast prefix lookup. To find all items of `StringTrie<TValue>` which have keys with given prefix use `GetByPrefix` method which returns `IEnumerable<StringEntry<TValue>>`:
 
     var result = trie.GetByPrefix("ABC");
 
