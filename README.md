@@ -3,7 +3,7 @@ Trie
 **Trie** (a.k.a. prefix tree)  is an ordered tree data structure that is used to store an associative array where the keys are usually strings. All the descendants of a node have a common prefix of the string associated with that node, and the root is associated with the empty string.  
 *Reference*: [Wikipedia &ndash; trie](http://en.wikipedia.org/wiki/Trie)
 
-![CI Build](https://github.com/kpol/trie/workflows/CI%20Build/badge.svg)
+[![CI Build](https://github.com/kpol/trie/workflows/CI%20Build/badge.svg)](https://github.com/kpol/trie/actions?query=workflow%3A%22CI+Build%22)
 [![Nuget](https://img.shields.io/nuget/v/KTrie.svg)](https://www.nuget.org/packages/KTrie)
 
 Advantages
