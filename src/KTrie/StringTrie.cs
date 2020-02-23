@@ -11,7 +11,7 @@ namespace KTrie
     /// <typeparam name="TValue">The type of values in the trie.</typeparam>
     public class StringTrie<TValue> : IDictionary<string, TValue>
     {
-        private readonly TrieDictionary<char, TValue> _trie;
+        private readonly Trie<char, TValue> _trie;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StringTrie{TValue}"/>.
@@ -19,7 +19,7 @@ namespace KTrie
         /// <param name="comparer">Comparer.</param>
         public StringTrie(IEqualityComparer<char> comparer)
         {
-            _trie = new TrieDictionary<char, TValue>(comparer);
+            _trie = new Trie<char, TValue>(comparer);
         }
 
         /// <summary>

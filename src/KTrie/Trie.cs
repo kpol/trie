@@ -10,23 +10,23 @@ namespace KTrie
     /// </summary>
     /// <typeparam name="TKey">The type of keys in the trie.</typeparam>
     /// <typeparam name="TValue">The type of values in the trie.</typeparam>
-    public class TrieDictionary<TKey, TValue> : IDictionary<IEnumerable<TKey>, TValue>
+    public class Trie<TKey, TValue> : IDictionary<IEnumerable<TKey>, TValue>
     {
         private readonly TrieSet<TKey> _trie;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TrieDictionary{TKey, TValue}"/>.
+        /// Initializes a new instance of the <see cref="Trie{TKey,TValue}"/>.
         /// </summary>
-        public TrieDictionary() : this(EqualityComparer<TKey>.Default)
+        public Trie() : this(EqualityComparer<TKey>.Default)
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TrieDictionary{TKey, TValue}"/>.
+        /// Initializes a new instance of the <see cref="Trie{TKey,TValue}"/>.
         /// </summary>
         /// <param name="comparer">Comparer.</param>
-        public TrieDictionary(IEqualityComparer<TKey> comparer)
+        public Trie(IEqualityComparer<TKey> comparer)
         {
             _trie = new TrieSet<TKey>(comparer);
         }
