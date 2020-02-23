@@ -9,23 +9,23 @@ namespace KTrie
     /// Implementation of trie data structure.
     /// </summary>
     /// <typeparam name="TValue">The type of values in the trie.</typeparam>
-    public class Trie<TValue> : IDictionary<string, TValue>
+    public class StringTrie<TValue> : IDictionary<string, TValue>
     {
         private readonly TrieDictionary<char, TValue> _trie;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Trie{TValue}"/>.
+        /// Initializes a new instance of the <see cref="StringTrie{TValue}"/>.
         /// </summary>
         /// <param name="comparer">Comparer.</param>
-        public Trie(IEqualityComparer<char> comparer)
+        public StringTrie(IEqualityComparer<char> comparer)
         {
             _trie = new TrieDictionary<char, TValue>(comparer);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Trie{TValue}"/>.
+        /// Initializes a new instance of the <see cref="StringTrie{TValue}"/>.
         /// </summary>
-        public Trie() : this(EqualityComparer<char>.Default)
+        public StringTrie() : this(EqualityComparer<char>.Default)
         {
         }
 
@@ -72,12 +72,12 @@ namespace KTrie
         }
 
         /// <summary>
-        /// Adds an element with the provided charKey and value to the <see cref="Trie{TValue}"/>.
+        /// Adds an element with the provided charKey and value to the <see cref="StringTrie{TValue}"/>.
         /// </summary>
         /// <param name="key">The object to use as the charKey of the element to add.</param>
         /// <param name="value">The object to use as the value of the element to add.</param>
         /// <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is null.</exception>
-        /// <exception cref="T:System.ArgumentException">An element with the same charKey already exists in the <see cref="Trie{TValue}"/>.</exception>
+        /// <exception cref="T:System.ArgumentException">An element with the same charKey already exists in the <see cref="StringTrie{TValue}"/>.</exception>
         public void Add(string key, TValue value)
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
@@ -86,10 +86,10 @@ namespace KTrie
         }
 
         /// <summary>
-        /// Adds the elements of the specified collection to the <see cref="Trie{TValue}"/>.
+        /// Adds the elements of the specified collection to the <see cref="StringTrie{TValue}"/>.
         /// </summary>
-        /// <param name="collection">The collection whose elements should be added to the <see cref="Trie{TValue}"/>. The items should have unique keys.</param>
-        /// <exception cref="T:System.ArgumentException">An element with the same charKey already exists in the <see cref="Trie{TValue}"/>.</exception>
+        /// <param name="collection">The collection whose elements should be added to the <see cref="StringTrie{TValue}"/>. The items should have unique keys.</param>
+        /// <exception cref="T:System.ArgumentException">An element with the same charKey already exists in the <see cref="StringTrie{TValue}"/>.</exception>
         public void AddRange(IEnumerable<StringEntry<TValue>> collection)
         {
             foreach (var item in collection)
@@ -160,7 +160,7 @@ namespace KTrie
         bool ICollection<KeyValuePair<string, TValue>>.Contains(KeyValuePair<string, TValue> item) => 
             ((IDictionary<IEnumerable<char>, TValue>)_trie).Contains(new KeyValuePair<IEnumerable<char>, TValue>(item.Key, item.Value));
 
-        void ICollection<KeyValuePair<string, TValue>>.CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex) => 
+        public void CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex) => 
             Array.Copy(_trie.Select(i => new KeyValuePair<string, TValue>(new string(i.Key.ToArray()), i.Value)).ToArray(), 0, array, arrayIndex, Count);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

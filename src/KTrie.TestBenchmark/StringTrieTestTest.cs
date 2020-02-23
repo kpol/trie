@@ -5,10 +5,10 @@ using BenchmarkDotNet.Attributes;
 
 namespace KTrie.TestBenchmark
 {
-    public class TrieTest
+    public class StringTrieTest
     {
         private readonly string[] _words;
-        private readonly Trie<bool> _trie;
+        private readonly StringTrieSet _stringTrie;
 
         private readonly string[] _prefixes =
         {
@@ -24,11 +24,11 @@ namespace KTrie.TestBenchmark
             "TR"
         };
 
-        public TrieTest()
+        public StringTrieTest()
         {
             _words = GetWords();
-            _trie = new Trie<bool>();
-            _trie.AddRange(_words.Select(w => new StringEntry<bool>(w, false)));
+            _stringTrie = new StringTrieSet();
+            _stringTrie.AddRange(_words);
         }
 
         [Benchmark]
@@ -38,7 +38,7 @@ namespace KTrie.TestBenchmark
 
             foreach (var prefix in _prefixes)
             {
-                result.AddRange(_trie.GetByPrefix(prefix).Select(s => s.Key));
+                result.AddRange(_stringTrie.GetByPrefix(prefix));
             }
 
             return result;

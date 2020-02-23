@@ -78,10 +78,7 @@ namespace KTrie
             return node != null && node.IsTerminal;
         }
 
-        void ICollection<IEnumerable<T>>.CopyTo(IEnumerable<T>[] array, int arrayIndex)
-        {
-            Array.Copy(GetAllNodes(_root).Select(GetFullKey).ToArray(), 0, array, arrayIndex, Count);
-        }
+        public void CopyTo(IEnumerable<T>[] array, int arrayIndex) => Array.Copy(GetAllNodes(_root).Select(GetFullKey).ToArray(), 0, array, arrayIndex, Count);
 
         public bool Remove(IEnumerable<T> key)
         {

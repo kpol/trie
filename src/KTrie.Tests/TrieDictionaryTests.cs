@@ -72,7 +72,7 @@ namespace KTrie.Tests
         [Fact]
         public void CopyTo()
         {
-            var trie = new Trie<bool> { { "ABC", true }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
+            var trie = new StringTrie<bool> { { "ABC", true }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
 
 
             var destinationArray = new KeyValuePair<string, bool>[6];

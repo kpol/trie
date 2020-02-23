@@ -7,7 +7,7 @@ namespace KTrie.TestBenchmark
     {
         static void Main(string[] args)
         {
-            var _ = BenchmarkRunner.Run<TrieTest>();
+            var _ = BenchmarkRunner.Run<StringTrieTest>();
         }
     }
 }

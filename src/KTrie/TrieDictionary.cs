@@ -72,8 +72,8 @@ namespace KTrie
         /// </summary>
         /// <param name="prefix">Key prefix.</param>
         /// <returns>Collection of <see cref="TrieEntry{TKey, TValue}"/> items which have key which starts from specified <see cref="prefix"/>.</returns>
-        public IEnumerable<TrieEntry<TKey, TValue>> GetByPrefix(IEnumerable<TKey> prefix)
-            => _trie.GetByPrefix(prefix).Cast<TrieEntryPrivate>().Select(i => new TrieEntry<TKey, TValue>(i, i.Value));
+        public IEnumerable<TrieEntry<TKey, TValue>> GetByPrefix(IEnumerable<TKey> prefix) => 
+            _trie.GetByPrefix(prefix).Cast<TrieEntryPrivate>().Select(i => new TrieEntry<TKey, TValue>(i, i.Value));
 
 
         public IEnumerator<KeyValuePair<IEnumerable<TKey>, TValue>> GetEnumerator() => 
@@ -104,11 +104,8 @@ namespace KTrie
             return false;
         }
 
-        void ICollection<KeyValuePair<IEnumerable<TKey>, TValue>>.CopyTo(
-            KeyValuePair<IEnumerable<TKey>, TValue>[] array, int arrayIndex) =>
-            Array.Copy(
-                _trie.Cast<TrieEntryPrivate>().Select(i => new KeyValuePair<IEnumerable<TKey>, TValue>(i, i.Value))
-                    .ToArray(), 0, array, arrayIndex, Count);
+        public void CopyTo(KeyValuePair<IEnumerable<TKey>, TValue>[] array, int arrayIndex) =>
+            Array.Copy(_trie.Cast<TrieEntryPrivate>().Select(i => new KeyValuePair<IEnumerable<TKey>, TValue>(i, i.Value)).ToArray(), 0, array, arrayIndex, Count);
 
         bool ICollection<KeyValuePair<IEnumerable<TKey>, TValue>>.Remove(KeyValuePair<IEnumerable<TKey>, TValue> item)
         {

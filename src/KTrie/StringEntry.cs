@@ -1,7 +1,7 @@
 ﻿namespace KTrie
 {
     /// <summary>
-    /// Defines a key/value pair that can be set or retrieved from <see cref="Trie{TValue}"/>.
+    /// Defines a key/value pair that can be set or retrieved from <see cref="StringTrie{TValue}"/>.
     /// </summary>
     public struct StringEntry<TValue>
     {

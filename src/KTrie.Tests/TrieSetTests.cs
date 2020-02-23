@@ -90,7 +90,7 @@ namespace KTrie.Tests
 
             var destinationArray = new IEnumerable<char>[6];
 
-            ((ICollection<IEnumerable<char>>)trie).CopyTo(destinationArray, 1);
+            trie.CopyTo(destinationArray, 1);
 
             var result = destinationArray.Where(i => i != null).ToArray();
 
