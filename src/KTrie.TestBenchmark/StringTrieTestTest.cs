@@ -9,6 +9,7 @@ namespace KTrie.TestBenchmark
     {
         private readonly string[] _words;
         private readonly StringTrieSet _stringTrie;
+        private readonly ILookup<char, string> _wordGroups;
 
         private readonly string[] _prefixes =
         {
@@ -21,14 +22,27 @@ namespace KTrie.TestBenchmark
             "LO",
             "ST",
             "TOM",
-            "TR"
+            "TR",
+            "MOR",
+            "X",
+            "TRE",
+            "SE",
+            "GO",
+            "VI",
+            "GRE",
+            "POL",
+            "KIR",
+            "VE"
         };
 
         public StringTrieTest()
         {
             _words = GetWords();
+
             _stringTrie = new StringTrieSet();
             _stringTrie.AddRange(_words);
+
+            _wordGroups = PreprocessWords();
         }
 
         [Benchmark]
@@ -47,16 +61,28 @@ namespace KTrie.TestBenchmark
         [Benchmark]
         public ICollection<string> Linq_StartsWith()
         {
-            var result = new List<string>();
+            var result = new HashSet<string>();
 
             foreach (var prefix in _prefixes)
             {
-                result.AddRange(_words.Where(w => w.StartsWith(prefix)));
+                var firstLetter = prefix[0];
+                foreach (var word in _wordGroups[firstLetter].Where(w => w.StartsWith(prefix)))
+                {
+                    result.Add(word);
+                }
             }
 
             return result;
         }
 
         private static string[] GetWords() => File.ReadAllLines("TestData/vocabulary.txt");
+
+        private ILookup<char, string> PreprocessWords()
+        {
+            var words = _words
+                .ToLookup(w => w[0]);
+
+            return words;
+        }
     }
 }
