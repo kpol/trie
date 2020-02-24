@@ -4,7 +4,7 @@ Trie
 *Reference*: [Wikipedia &ndash; trie](http://en.wikipedia.org/wiki/Trie)
 
 [![CI Build](https://github.com/kpol/trie/workflows/CI%20Build/badge.svg)](https://github.com/kpol/trie/actions?query=workflow%3A%22CI+Build%22)
-[![Nuget](https://img.shields.io/nuget/v/KTrie.svg)](https://www.nuget.org/packages/KTrie)
+[![Nuget](https://img.shields.io/nuget/v/KTrie.svg?logo=nuget)](https://www.nuget.org/packages/KTrie)
 
 Advantages
 ------
