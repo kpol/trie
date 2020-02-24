@@ -31,5 +31,5 @@ jobs:
       - name: Publish artifact
         uses: actions/upload-artifact@v1.0.0
         with:
-          name: Trie NuGet Package
+          name: NuGet Package
           path: package
