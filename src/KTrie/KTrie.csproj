@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Kirill Polishchuk</Authors>
     <Description>Trie (a.k.a. prefix tree) is an ordered tree data structure that is used to store an associative array where the keys are usually strings. All the descendants of a node have a common prefix of the string associated with that node, and the root is associated with the empty string.</Description>
     <Copyright>Kirill Polishchuk</Copyright>
@@ -9,6 +8,7 @@
     <RepositoryUrl>https://github.com/kpol/trie</RepositoryUrl>
     <PackageProjectUrl>https://github.com/kpol/trie</PackageProjectUrl>
     <PackageTags>trie, prefix-tree, data-structure</PackageTags>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
   </PropertyGroup>
 
 </Project>
