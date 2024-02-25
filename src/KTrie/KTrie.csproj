@@ -8,7 +8,7 @@
     <RepositoryUrl>https://github.com/kpol/trie</RepositoryUrl>
     <PackageProjectUrl>https://github.com/kpol/trie</PackageProjectUrl>
     <PackageTags>trie, prefix-tree, data-structure</PackageTags>
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
 </Project>
