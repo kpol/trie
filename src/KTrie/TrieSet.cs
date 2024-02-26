@@ -3,325 +3,324 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace KTrie
+namespace KTrie;
+
+public class TrieSet<T> : ICollection<IEnumerable<T>>
 {
-    public class TrieSet<T> : ICollection<IEnumerable<T>>
+    private readonly IEqualityComparer<T> _comparer;
+
+    private readonly TrieNode _root;
+
+    public TrieSet() : this(EqualityComparer<T>.Default)
     {
-        private readonly IEqualityComparer<T> _comparer;
 
-        private readonly TrieNode _root;
+    }
 
-        public TrieSet() : this(EqualityComparer<T>.Default)
+    public TrieSet(IEqualityComparer<T> comparer)
+    {
+        _comparer = comparer;
+        _root = new TrieNode(default, comparer);
+    }
+
+    public int Count { get; private set; }
+
+    bool ICollection<IEnumerable<T>>.IsReadOnly => false;
+
+    public IEnumerator<IEnumerable<T>> GetEnumerator() => 
+        GetAllNodes(_root).Select(GetFullKey).GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public void Add(IEnumerable<T> key)
+    {
+        if (key == null) throw new ArgumentNullException(nameof(key));
+
+        var node = _root;
+
+        // ReSharper disable once PossibleMultipleEnumeration
+        foreach (var item in key)
         {
-
+            node = AddItem(node, item);
         }
 
-        public TrieSet(IEqualityComparer<T> comparer)
+        if (node.IsTerminal)
         {
-            _comparer = comparer;
-            _root = new TrieNode(default, comparer);
+            throw new ArgumentException($"An element with the same key already exists: '{key}'", nameof(key));
         }
 
-        public int Count { get; private set; }
+        node.IsTerminal = true;
 
-        bool ICollection<IEnumerable<T>>.IsReadOnly => false;
+        // ReSharper disable once PossibleMultipleEnumeration
+        node.Item = key;
+        Count++;
+    }
 
-        public IEnumerator<IEnumerable<T>> GetEnumerator() => 
-            GetAllNodes(_root).Select(GetFullKey).GetEnumerator();
+    public void AddRange(IEnumerable<IEnumerable<T>> collection)
+    {
+        if (collection == null) throw new ArgumentNullException(nameof(collection));
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public void Add(IEnumerable<T> key)
+        foreach (var item in collection)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            Add(item);
+        }
+    }
 
-            var node = _root;
+    public void Clear()
+    {
+        _root.Children.Clear();
+        Count = 0;
+    }
 
-            // ReSharper disable once PossibleMultipleEnumeration
-            foreach (var item in key)
-            {
-                node = AddItem(node, item);
-            }
+    public bool Contains(IEnumerable<T> item)
+    {
+        var node = GetNode(item);
 
-            if (node.IsTerminal)
-            {
-                throw new ArgumentException($"An element with the same key already exists: '{key}'", nameof(key));
-            }
+        return node != null && node.IsTerminal;
+    }
 
-            node.IsTerminal = true;
+    public void CopyTo(IEnumerable<T>[] array, int arrayIndex) => Array.Copy(GetAllNodes(_root).Select(GetFullKey).ToArray(), 0, array, arrayIndex, Count);
 
-            // ReSharper disable once PossibleMultipleEnumeration
-            node.Item = key;
-            Count++;
+    public bool Remove(IEnumerable<T> key)
+    {
+        if (key == null) throw new ArgumentNullException(nameof(key));
+
+        var node = GetNode(key);
+
+        if (node == null)
+        {
+            return false;
         }
 
-        public void AddRange(IEnumerable<IEnumerable<T>> collection)
+        if (!node.IsTerminal)
         {
-            if (collection == null) throw new ArgumentNullException(nameof(collection));
+            return false;
+        }
 
-            foreach (var item in collection)
+        RemoveNode(node);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Gets an item by key.
+    /// </summary>
+    /// <param name="key">Key.</param>
+    /// <param name="item">Output item.</param>
+    /// <returns>true if trie contains an element with the specified key; otherwise, false.</returns>
+    public bool TryGetItem(IEnumerable<T> key, out IEnumerable<T> item)
+    {
+        if (key == null) throw new ArgumentNullException(nameof(key));
+
+        var node = GetNode(key);
+        item = null;
+
+        if (node == null)
+        {
+            return false;
+        }
+
+        if (!node.IsTerminal)
+        {
+            return false;
+        }
+
+        item = node.Item;
+
+        return true;
+    }
+
+    internal bool TryGetNode(IEnumerable<T> key, out TrieNode node)
+    {
+        node = GetNode(key);
+
+        if (node == null)
+        {
+            return false;
+        }
+
+        if (!node.IsTerminal)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Gets items by key prefix.
+    /// </summary>
+    /// <param name="prefix">Key prefix.</param>
+    /// <returns>Collection of <see cref="T"/> items.</returns>
+    public IEnumerable<IEnumerable<T>> GetByPrefix(IEnumerable<T> prefix)
+    {
+        if (prefix == null) throw new ArgumentNullException(nameof(prefix));
+
+        var node = _root;
+
+        foreach (var item in prefix)
+        {
+            if (!node.Children.TryGetValue(item, out node))
             {
-                Add(item);
+                return Enumerable.Empty<IEnumerable<T>>();
             }
         }
 
-        public void Clear()
+        return GetByPrefix(node);
+    }
+
+    private static IEnumerable<TrieNode> GetAllNodes(TrieNode node)
+    {
+        foreach (var child in node.Children)
         {
-            _root.Children.Clear();
-            Count = 0;
-        }
-
-        public bool Contains(IEnumerable<T> item)
-        {
-            var node = GetNode(item);
-
-            return node != null && node.IsTerminal;
-        }
-
-        public void CopyTo(IEnumerable<T>[] array, int arrayIndex) => Array.Copy(GetAllNodes(_root).Select(GetFullKey).ToArray(), 0, array, arrayIndex, Count);
-
-        public bool Remove(IEnumerable<T> key)
-        {
-            if (key == null) throw new ArgumentNullException(nameof(key));
-
-            var node = GetNode(key);
-
-            if (node == null)
+            if (child.Value.IsTerminal)
             {
-                return false;
+                yield return child.Value;
             }
 
-            if (!node.IsTerminal)
+            foreach (var item in GetAllNodes(child.Value))
             {
-                return false;
-            }
-
-            RemoveNode(node);
-
-            return true;
-        }
-
-        /// <summary>
-        /// Gets an item by key.
-        /// </summary>
-        /// <param name="key">Key.</param>
-        /// <param name="item">Output item.</param>
-        /// <returns>true if trie contains an element with the specified key; otherwise, false.</returns>
-        public bool TryGetItem(IEnumerable<T> key, out IEnumerable<T> item)
-        {
-            if (key == null) throw new ArgumentNullException(nameof(key));
-
-            var node = GetNode(key);
-            item = null;
-
-            if (node == null)
-            {
-                return false;
-            }
-
-            if (!node.IsTerminal)
-            {
-                return false;
-            }
-
-            item = node.Item;
-
-            return true;
-        }
-
-        internal bool TryGetNode(IEnumerable<T> key, out TrieNode node)
-        {
-            node = GetNode(key);
-
-            if (node == null)
-            {
-                return false;
-            }
-
-            if (!node.IsTerminal)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Gets items by key prefix.
-        /// </summary>
-        /// <param name="prefix">Key prefix.</param>
-        /// <returns>Collection of <see cref="T"/> items.</returns>
-        public IEnumerable<IEnumerable<T>> GetByPrefix(IEnumerable<T> prefix)
-        {
-            if (prefix == null) throw new ArgumentNullException(nameof(prefix));
-
-            var node = _root;
-
-            foreach (var item in prefix)
-            {
-                if (!node.Children.TryGetValue(item, out node))
+                if (item.IsTerminal)
                 {
-                    return Enumerable.Empty<IEnumerable<T>>();
+                    yield return item;
                 }
             }
-
-            return GetByPrefix(node);
         }
+    }
 
-        private static IEnumerable<TrieNode> GetAllNodes(TrieNode node)
+    private static IEnumerable<IEnumerable<T>> GetByPrefix(TrieNode node)
+    {
+        var stack = new Stack<TrieNode>();
+        var current = node;
+
+        while (stack.Count > 0 || current != null)
         {
-            foreach (var child in node.Children)
+            if (current != null)
             {
-                if (child.Value.IsTerminal)
+                if (current.IsTerminal)
                 {
-                    yield return child.Value;
+                    yield return GetFullKey(current);
                 }
 
-                foreach (var item in GetAllNodes(child.Value))
+                using (var enumerator = current.Children.GetEnumerator())
                 {
-                    if (item.IsTerminal)
+                    current = enumerator.MoveNext() ? enumerator.Current.Value : null;
+
+                    while (enumerator.MoveNext())
                     {
-                        yield return item;
+                        stack.Push(enumerator.Current.Value);
                     }
                 }
             }
-        }
-
-        private static IEnumerable<IEnumerable<T>> GetByPrefix(TrieNode node)
-        {
-            var stack = new Stack<TrieNode>();
-            var current = node;
-
-            while (stack.Count > 0 || current != null)
+            else
             {
-                if (current != null)
-                {
-                    if (current.IsTerminal)
-                    {
-                        yield return GetFullKey(current);
-                    }
+                current = stack.Pop();
+            }
+        }
+    }
 
-                    using (var enumerator = current.Children.GetEnumerator())
-                    {
-                        current = enumerator.MoveNext() ? enumerator.Current.Value : null;
+    private static IEnumerable<T> GetFullKey(TrieNode node)
+    {
+        //var stack = new Stack<T>();
+        //stack.Push(node.Key);
 
-                        while (enumerator.MoveNext())
-                        {
-                            stack.Push(enumerator.Current.Value);
-                        }
-                    }
-                }
-                else
-                {
-                    current = stack.Pop();
-                }
+        //var n = node;
+
+        //while ((n = n.Parent) != _root)
+        //{
+        //    stack.Push(n.Key);
+        //}
+
+        //return stack;
+
+        return node.Item;
+    }
+
+    private TrieNode GetNode(IEnumerable<T> key)
+    {
+        var node = _root;
+
+        foreach (var item in key)
+        {
+            if (!node.Children.TryGetValue(item, out node))
+            {
+                return null;
             }
         }
 
-        private static IEnumerable<T> GetFullKey(TrieNode node)
+        return node;
+    }
+
+    private void RemoveNode(TrieNode node)
+    {
+        Remove(node);
+        Count--;
+    }
+
+    private TrieNode AddItem(TrieNode node, T key)
+    {
+        if (!node.Children.TryGetValue(key, out var child))
         {
-            //var stack = new Stack<T>();
-            //stack.Push(node.Key);
+            child = new TrieNode(key, _comparer)
+            {
+                Parent = node
+            };
 
-            //var n = node;
-
-            //while ((n = n.Parent) != _root)
-            //{
-            //    stack.Push(n.Key);
-            //}
-
-            //return stack;
-
-            return node.Item;
+            node.Children.Add(key, child);
         }
 
-        private TrieNode GetNode(IEnumerable<T> key)
-        {
-            var node = _root;
+        return child;
+    }
 
-            foreach (var item in key)
+    private void Remove(TrieNode node, T key)
+    {
+        foreach (var trieNode in node.Children)
+        {
+            if (_comparer.Equals(key, trieNode.Key))
             {
-                if (!node.Children.TryGetValue(item, out node))
-                {
-                    return null;
-                }
+                node.Children.Remove(trieNode);
+
+                return;
             }
-
-            return node;
         }
+    }
 
-        private void RemoveNode(TrieNode node)
+    private void Remove(TrieNode node)
+    {
+        while (true)
         {
-            Remove(node);
-            Count--;
-        }
+            node.IsTerminal = false;
 
-        private TrieNode AddItem(TrieNode node, T key)
-        {
-            if (!node.Children.TryGetValue(key, out var child))
+            if (node.Children.Count == 0 && node.Parent != null)
             {
-                child = new TrieNode(key, _comparer)
+                Remove(node.Parent, node.Key);
+
+                if (!node.Parent.IsTerminal)
                 {
-                    Parent = node
-                };
-
-                node.Children.Add(key, child);
-            }
-
-            return child;
-        }
-
-        private void Remove(TrieNode node, T key)
-        {
-            foreach (var trieNode in node.Children)
-            {
-                if (_comparer.Equals(key, trieNode.Key))
-                {
-                    node.Children.Remove(trieNode);
-
-                    return;
+                    node = node.Parent;
+                    continue;
                 }
             }
-        }
 
-        private void Remove(TrieNode node)
+            break;
+        }
+    }
+
+    internal sealed class TrieNode
+    {
+        public TrieNode(T key, IEqualityComparer<T> comparer)
         {
-            while (true)
-            {
-                node.IsTerminal = false;
-
-                if (node.Children.Count == 0 && node.Parent != null)
-                {
-                    Remove(node.Parent, node.Key);
-
-                    if (!node.Parent.IsTerminal)
-                    {
-                        node = node.Parent;
-                        continue;
-                    }
-                }
-
-                break;
-            }
+            Key = key;
+            Children = new Dictionary<T, TrieNode>(comparer);
         }
 
-        internal sealed class TrieNode
-        {
-            public TrieNode(T key, IEqualityComparer<T> comparer)
-            {
-                Key = key;
-                Children = new Dictionary<T, TrieNode>(comparer);
-            }
+        public bool IsTerminal { get; set; }
 
-            public bool IsTerminal { get; set; }
+        public T Key { get; }
 
-            public T Key { get; }
+        public IEnumerable<T> Item { get; set; }
 
-            public IEnumerable<T> Item { get; set; }
+        public IDictionary<T, TrieNode> Children { get; }
 
-            public IDictionary<T, TrieNode> Children { get; }
-
-            public TrieNode Parent { get; set; }
-        }
+        public TrieNode Parent { get; set; }
     }
 }
