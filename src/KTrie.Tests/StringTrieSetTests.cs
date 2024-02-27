@@ -15,8 +15,8 @@ public class StringTrieSetTests
     [InlineData("x", false)]
     public void Contains(string lookup, bool foundExpected)
     {
-        string[] input = { "abc", "abde" };
-        var stringTrieSet = new StringTrieSet();
+        string[] input = ["abc", "abde"];
+        var stringTrieSet = new StringTrieSet2();
         stringTrieSet.AddRange(input);
 
         Assert.Equal(foundExpected, stringTrieSet.Contains(lookup));
@@ -31,12 +31,45 @@ public class StringTrieSetTests
     [InlineData("abx", new[] { "abx", "abxx" })]
     public void GetByPrefix(string prefix, string[] found)
     {
-        string[] input = {"abc", "abde", "abx", "abxx"};
-        var stringTrieSet = new StringTrieSet();
+        string[] input = ["abc", "abde", "abx", "abxx"];
+        var stringTrieSet = new StringTrieSet2();
         stringTrieSet.AddRange(input);
 
         var result = stringTrieSet.GetByPrefix(prefix).OrderBy(s => s);
 
         Assert.Equal(found.OrderBy(s => s), result);
+    }
+
+    [Fact]
+    public void Remove()
+    {
+        StringTrieSet2 trie = ["a", "ab", "abc"];
+
+        Assert.Equal(3, trie.Count);
+
+        Assert.True(trie.Remove("a"));
+        Assert.False(trie.Remove("a"));
+
+        Assert.Equal(2, trie.Count);
+        Assert.Contains("ab", trie);
+        Assert.Contains("abc", trie);
+        Assert.DoesNotContain("a", trie);
+    }
+
+    [Fact]
+    public void Remove2()
+    {
+        StringTrieSet2 trie = ["a", "ab", "abc", "abd"];
+
+        Assert.Equal(4, trie.Count);
+
+        Assert.True(trie.Remove("ab"));
+        Assert.False(trie.Remove("ab"));
+
+        Assert.Equal(3, trie.Count);
+        Assert.Contains("a", trie);
+        Assert.Contains("abc", trie);
+        Assert.Contains("abd", trie);
+        Assert.DoesNotContain("ab", trie);
     }
 }

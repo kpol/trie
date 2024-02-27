@@ -1,18 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 
 namespace KTrie.TestBenchmark;
 
+[MemoryDiagnoser(false)]
 public class StringTrieTest
 {
     private readonly string[] _words;
     private readonly StringTrieSet _stringTrie;
     private readonly ILookup<char, string> _wordGroups;
+    private readonly StringTrieSet2 _trie2;
 
     private readonly string[] _prefixes =
-    {
+    [
         "ABC",
         "K",
         "HELLO",
@@ -33,26 +37,44 @@ public class StringTrieTest
         "POL",
         "KIR",
         "VE"
-    };
+    ];
 
     public StringTrieTest()
     {
         _words = GetWords();
 
-        _stringTrie = new StringTrieSet();
-        _stringTrie.AddRange(_words);
-
+        _stringTrie = [.. _words];
+        _trie2 = [.. _words];
         _wordGroups = PreprocessWords();
     }
 
     [Benchmark]
     public ICollection<string> Trie_GetByPrefix()
     {
-        var result = new List<string>();
+        var result = new HashSet<string>();
 
         foreach (var prefix in _prefixes)
         {
-            result.AddRange(_stringTrie.GetByPrefix(prefix));
+            foreach (var res in _stringTrie.GetByPrefix(prefix))
+            {
+                result.Add(res);
+            }
+        }
+
+        return result;
+    }
+
+    [Benchmark]
+    public ICollection<string> Trie_GetByPrefix2()
+    {
+        var result = new HashSet<string>();
+
+        foreach (var prefix in _prefixes)
+        {
+            foreach (var res in _trie2.GetByPrefix(prefix))
+            {
+                result.Add(res);
+            }
         }
 
         return result;

@@ -33,7 +33,7 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
 
     public void Add(IEnumerable<T> key)
     {
-        if (key == null) throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(key);
 
         var node = _root;
 
@@ -45,7 +45,7 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
 
         if (node.IsTerminal)
         {
-            throw new ArgumentException($"An element with the same key already exists: '{key}'", nameof(key));
+            throw new ArgumentException("An element with the same key already exists");
         }
 
         node.IsTerminal = true;
@@ -57,7 +57,7 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
 
     public void AddRange(IEnumerable<IEnumerable<T>> collection)
     {
-        if (collection == null) throw new ArgumentNullException(nameof(collection));
+        ArgumentNullException.ThrowIfNull(collection);
 
         foreach (var item in collection)
         {
@@ -75,18 +75,18 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
     {
         var node = GetNode(item);
 
-        return node != null && node.IsTerminal;
+        return node is not null && node.IsTerminal;
     }
 
     public void CopyTo(IEnumerable<T>[] array, int arrayIndex) => Array.Copy(GetAllNodes(_root).Select(GetFullKey).ToArray(), 0, array, arrayIndex, Count);
 
     public bool Remove(IEnumerable<T> key)
     {
-        if (key == null) throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(key);
 
         var node = GetNode(key);
 
-        if (node == null)
+        if (node is null)
         {
             return false;
         }
@@ -109,12 +109,12 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
     /// <returns>true if trie contains an element with the specified key; otherwise, false.</returns>
     public bool TryGetItem(IEnumerable<T> key, out IEnumerable<T> item)
     {
-        if (key == null) throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(key);
 
         var node = GetNode(key);
         item = null;
 
-        if (node == null)
+        if (node is null)
         {
             return false;
         }
@@ -133,7 +133,7 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
     {
         node = GetNode(key);
 
-        if (node == null)
+        if (node is null)
         {
             return false;
         }
@@ -153,7 +153,7 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
     /// <returns>Collection of <see cref="T"/> items.</returns>
     public IEnumerable<IEnumerable<T>> GetByPrefix(IEnumerable<T> prefix)
     {
-        if (prefix == null) throw new ArgumentNullException(nameof(prefix));
+        ArgumentNullException.ThrowIfNull(prefix);
 
         var node = _root;
 
@@ -192,23 +192,21 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
         var stack = new Stack<TrieNode>();
         var current = node;
 
-        while (stack.Count > 0 || current != null)
+        while (stack.Count > 0 || current is not null)
         {
-            if (current != null)
+            if (current is not null)
             {
                 if (current.IsTerminal)
                 {
                     yield return GetFullKey(current);
                 }
 
-                using (var enumerator = current.Children.GetEnumerator())
-                {
-                    current = enumerator.MoveNext() ? enumerator.Current.Value : null;
+                using var enumerator = current.Children.GetEnumerator();
+                current = enumerator.MoveNext() ? enumerator.Current.Value : null;
 
-                    while (enumerator.MoveNext())
-                    {
-                        stack.Push(enumerator.Current.Value);
-                    }
+                while (enumerator.MoveNext())
+                {
+                    stack.Push(enumerator.Current.Value);
                 }
             }
             else
@@ -225,7 +223,7 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
 
         //var n = node;
 
-        //while ((n = n.Parent) != _root)
+        //while ((n = n.Parent) is not _root)
         //{
         //    stack.Push(n.Key);
         //}
@@ -290,7 +288,7 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
         {
             node.IsTerminal = false;
 
-            if (node.Children.Count == 0 && node.Parent != null)
+            if (node.Children.Count == 0 && node.Parent is not null)
             {
                 Remove(node.Parent, node.Key);
 
@@ -305,22 +303,16 @@ public class TrieSet<T> : ICollection<IEnumerable<T>>
         }
     }
 
-    internal sealed class TrieNode
+    internal sealed class TrieNode(T key, IEqualityComparer<T> comparer)
     {
-        public TrieNode(T key, IEqualityComparer<T> comparer)
-        {
-            Key = key;
-            Children = new Dictionary<T, TrieNode>(comparer);
-        }
-
         public bool IsTerminal { get; set; }
 
-        public T Key { get; }
+        public T Key { get; } = key;
 
         public IEnumerable<T> Item { get; set; }
 
-        public IDictionary<T, TrieNode> Children { get; }
+        public IDictionary<T, TrieNode> Children { get; } = new Dictionary<T, TrieNode>(comparer);
 
-        public TrieNode Parent { get; set; }
+        public TrieNode Parent { get; init; }
     }
 }

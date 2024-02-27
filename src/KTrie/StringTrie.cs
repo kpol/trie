@@ -80,7 +80,7 @@ public class StringTrie<TValue> : IDictionary<string, TValue>
     /// <exception cref="T:System.ArgumentException">An element with the same charKey already exists in the <see cref="StringTrie{TValue}"/>.</exception>
     public void Add(string key, TValue value)
     {
-        if (key == null) throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(key);
 
         _trie.Add(key, value);
     }

@@ -140,14 +140,9 @@ public class Trie<TKey, TValue> : IDictionary<IEnumerable<TKey>, TValue>
         return result;
     }
 
-    private sealed class TrieEntryPrivate : IEnumerable<TKey>
+    private sealed class TrieEntryPrivate(IEnumerable<TKey> key) : IEnumerable<TKey>
     {
-        public TrieEntryPrivate(IEnumerable<TKey> key)
-        {
-            Key = key;
-        }
-
-        private IEnumerable<TKey> Key { get; }
+        private IEnumerable<TKey> Key { get; } = key;
 
         public TValue Value { get; set; }
 
