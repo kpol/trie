@@ -1,45 +1,238 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace KTrie;
 
-public class StringTrieSet : ICollection<string>
+public sealed class StringTrieSet : ICollection<string>
 {
-    private readonly TrieSet<char> _trie;
+    private readonly IEqualityComparer<char> _comparer;
 
-    public StringTrieSet() : this(EqualityComparer<char>.Default)
+    private readonly TrieNode _root;
+
+    public StringTrieSet(IEqualityComparer<char>? comparer = null)
     {
-            
+        _comparer = comparer ?? EqualityComparer<char>.Default;
+        _root = new TrieNode(char.MinValue, _comparer);
     }
 
-    public StringTrieSet(IEqualityComparer<char> comparer)
+    public int Count { get; private set; }
+
+    public bool IsReadOnly => false;
+
+    public void Add(string word)
     {
-        _trie = new TrieSet<char>(comparer);
+        ArgumentException.ThrowIfNullOrEmpty(word);
+
+        if (string.IsNullOrEmpty(word))
+        {
+            return;
+        }
+
+        TrieNode current = _root;
+
+        foreach (var c in word)
+        {
+            if (current.TryGetChildNode(c, out var value))
+            {
+                current = value;
+            }
+            else
+            {
+                TrieNode node = new(c, _comparer)
+                {
+                    Parent = current
+                };
+                current.Add(node);
+                current = node;
+            }
+        }
+
+        current.Word = word;
+        Count++;
     }
 
-    public int Count => _trie.Count;
+    public void AddRange(IEnumerable<string> words)
+    {
+        ArgumentNullException.ThrowIfNull(words);
 
-    bool ICollection<string>.IsReadOnly => false;
+        foreach (var word in words)
+        {
+            Add(word);
+        }
+    }
 
-    public IEnumerable<string> GetByPrefix(string prefix) =>
-        _trie.GetByPrefix(prefix).Select(c => new string(c.ToArray()));
+    public void Clear() => _root.Clear();
 
-    public IEnumerator<string> GetEnumerator() => _trie.Select(c => new string(c.ToArray())).GetEnumerator();
+    public bool Contains(string word)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(word);
+
+        var node = GetNode(word);
+
+        return node is not null && node.IsTerminal;
+    }
+
+    public void CopyTo(string[] array, int arrayIndex) => Array.Copy(GetDescendants(_root).Select(n => n.Word).ToArray(), 0, array, arrayIndex, Count);
+
+    public bool Remove(string word)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(word);
+
+        var node = GetNode(word);
+
+        if (node is null || !node.IsTerminal) return false;
+
+        RemoveNode(node);
+
+        return true;
+    }
+
+    public IEnumerable<string> GetByPrefix(string prefix)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(prefix);
+
+        var node = GetNode(prefix);
+
+        if (node is null)
+        {
+            yield break;
+        }
+
+        foreach (var n in GetDescendants(node))
+        {
+            yield return n.Word!;
+        }
+    }
+
+    public IEnumerator<string> GetEnumerator() => GetDescendants(_root).Select(n => n.Word!).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void Add(string item) => _trie.Add(item);
+    private static IEnumerable<TrieNode> GetDescendants(TrieNode node)
+    {
+        Stack<TrieNode> st = [];
+        st.Push(node);
 
-    public void AddRange(IEnumerable<string> item) => _trie.AddRange(item);
+        while (st.Count > 0)
+        {
+            var n = st.Pop();
 
-    public void Clear() => _trie.Clear();
+            if (n.IsTerminal)
+            {
+                yield return n;
+            }
 
-    public bool Contains(string item) => _trie.Contains(item);
+            foreach (var nodeChild in n)
+            {
+                st.Push(nodeChild);
+            }
+        }
+    }
 
-    public void CopyTo(string[] array, int arrayIndex) =>
-        Array.Copy(_trie.Select(c => new string(c.ToArray())).ToArray(), 0, array, arrayIndex, Count);
+    private TrieNode? GetNode(string prefix)
+    {
+        TrieNode current = _root;
 
-    public bool Remove(string item) => _trie.Remove(item);
+        foreach (var t in prefix)
+        {
+            if (current.TryGetChildNode(t, out var value))
+            {
+                current = value;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        return current;
+    }
+
+    private void RemoveNode(TrieNode node)
+    {
+        Count--;
+
+        node.Word = null;
+
+        while (true)
+        {
+            if (node.ChildrenCount == 0 && node.Parent is not null)
+            {
+                node.Parent.RemoveChild(node.Key);
+
+                if (!node.Parent.IsTerminal)
+                {
+                    node = node.Parent;
+                    continue;
+                }
+            }
+
+            break;
+        }
+    }
+
+    private sealed class TrieNode(char key, IEqualityComparer<char> comparer) : IEnumerable<TrieNode>
+    {
+        private readonly List<TrieNode> _children = [];
+
+        public char Key { get; } = key;
+
+        [MaybeNull]
+        public TrieNode Parent { get; init; }
+
+        public bool IsTerminal => Word is not null;
+
+        public string? Word { get; set; }
+
+        public int ChildrenCount => _children.Count;
+
+        public void Add(TrieNode node) => _children.Add(node);
+
+        public void RemoveChild(char key)
+        {
+            int index = -1;
+
+            for (int i = 0; i < _children.Count; i++)
+            {
+                if (comparer.Equals(key, _children[i].Key))
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index != -1)
+            {
+                _children.RemoveAt(index);
+            }
+        }
+
+        public bool TryGetChildNode(char key, [NotNullWhen(true)] out TrieNode? node)
+        {
+            foreach (var n in _children)
+            {
+                if (comparer.Equals(key, n.Key))
+                {
+                    node = n;
+
+                    return true;
+                }
+            }
+
+            node = default;
+
+            return false;
+        }
+
+        public void Clear() => _children.Clear();
+
+        public IEnumerator<TrieNode> GetEnumerator() => _children.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public override string ToString() => IsTerminal ? $"{Key}:{Word}" : Key.ToString();
+    }
 }

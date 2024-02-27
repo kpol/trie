@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
@@ -13,7 +11,6 @@ public class StringTrieTest
     private readonly string[] _words;
     private readonly StringTrieSet _stringTrie;
     private readonly ILookup<char, string> _wordGroups;
-    private readonly StringTrieSet2 _trie2;
 
     private readonly string[] _prefixes =
     [
@@ -44,7 +41,6 @@ public class StringTrieTest
         _words = GetWords();
 
         _stringTrie = [.. _words];
-        _trie2 = [.. _words];
         _wordGroups = PreprocessWords();
     }
 
@@ -56,22 +52,6 @@ public class StringTrieTest
         foreach (var prefix in _prefixes)
         {
             foreach (var res in _stringTrie.GetByPrefix(prefix))
-            {
-                result.Add(res);
-            }
-        }
-
-        return result;
-    }
-
-    [Benchmark]
-    public ICollection<string> Trie_GetByPrefix2()
-    {
-        var result = new HashSet<string>();
-
-        foreach (var prefix in _prefixes)
-        {
-            foreach (var res in _trie2.GetByPrefix(prefix))
             {
                 result.Add(res);
             }

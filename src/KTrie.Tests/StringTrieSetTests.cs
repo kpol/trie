@@ -16,7 +16,7 @@ public class StringTrieSetTests
     public void Contains(string lookup, bool foundExpected)
     {
         string[] input = ["abc", "abde"];
-        var stringTrieSet = new StringTrieSet2();
+        var stringTrieSet = new StringTrieSet();
         stringTrieSet.AddRange(input);
 
         Assert.Equal(foundExpected, stringTrieSet.Contains(lookup));
@@ -32,7 +32,7 @@ public class StringTrieSetTests
     public void GetByPrefix(string prefix, string[] found)
     {
         string[] input = ["abc", "abde", "abx", "abxx"];
-        var stringTrieSet = new StringTrieSet2();
+        var stringTrieSet = new StringTrieSet();
         stringTrieSet.AddRange(input);
 
         var result = stringTrieSet.GetByPrefix(prefix).OrderBy(s => s);
@@ -43,7 +43,7 @@ public class StringTrieSetTests
     [Fact]
     public void Remove()
     {
-        StringTrieSet2 trie = ["a", "ab", "abc"];
+        StringTrieSet trie = ["a", "ab", "abc"];
 
         Assert.Equal(3, trie.Count);
 
@@ -59,7 +59,7 @@ public class StringTrieSetTests
     [Fact]
     public void Remove2()
     {
-        StringTrieSet2 trie = ["a", "ab", "abc", "abd"];
+        StringTrieSet trie = ["a", "ab", "abc", "abd"];
 
         Assert.Equal(4, trie.Count);
 
