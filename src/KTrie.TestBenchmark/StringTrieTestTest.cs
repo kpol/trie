@@ -9,8 +9,11 @@ namespace KTrie.TestBenchmark;
 public class StringTrieTest
 {
     private readonly string[] _words;
-    private readonly StringTrieSet _stringTrie;
     private readonly ILookup<char, string> _wordGroups;
+    private readonly Dictionary<string, List<string>> _dictWithAllPrefixes;
+    private readonly Trie _trie;
+    private readonly TrieDictionary<int> _trieDictionary;
+
 
     private readonly string[] _prefixes =
     [
@@ -39,19 +42,26 @@ public class StringTrieTest
     public StringTrieTest()
     {
         _words = GetWords();
-
-        _stringTrie = [.. _words];
         _wordGroups = PreprocessWords();
+        _dictWithAllPrefixes = LoadAllPrefixes();
+
+        _trie = [.. _words];
+        _trieDictionary = [];
+
+        for (int i = 0; i < _words.Length; i++)
+        {
+            _trieDictionary.Add(_words[i], i);
+        }
     }
 
     [Benchmark]
     public ICollection<string> Trie_GetByPrefix()
     {
-        var result = new HashSet<string>();
+        HashSet<string> result = [];
 
         foreach (var prefix in _prefixes)
         {
-            foreach (var res in _stringTrie.GetByPrefix(prefix))
+            foreach (var res in _trie.GetByPrefix(prefix))
             {
                 result.Add(res);
             }
@@ -63,7 +73,7 @@ public class StringTrieTest
     [Benchmark]
     public ICollection<string> Linq_StartsWith()
     {
-        var result = new HashSet<string>();
+        HashSet<string> result = [];
 
         foreach (var prefix in _prefixes)
         {
@@ -71,6 +81,41 @@ public class StringTrieTest
             foreach (var word in _wordGroups[firstLetter].Where(w => w.StartsWith(prefix)))
             {
                 result.Add(word);
+            }
+        }
+
+        return result;
+    }
+
+    [Benchmark]
+    public ICollection<string> Linq_DictionaryWithAllPrefixes()
+    {
+        HashSet<string> result = [];
+
+        foreach (var prefix in _prefixes)
+        {
+            if (_dictWithAllPrefixes.TryGetValue(prefix, out var words))
+            {
+                foreach (var word in words)
+                {
+                    result.Add(word);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    [Benchmark]
+    public ICollection<(string, int)> TrieDictionary_GetByPrefix()
+    {
+        HashSet<(string, int)> result = [];
+
+        foreach (var prefix in _prefixes)
+        {
+            foreach (var res in _trieDictionary.GetByPrefix(prefix))
+            {
+                result.Add((res.Key, res.Value));
             }
         }
 
@@ -85,5 +130,29 @@ public class StringTrieTest
             .ToLookup(w => w[0]);
 
         return words;
+    }
+
+    private Dictionary<string, List<string>> LoadAllPrefixes()
+    {
+        Dictionary<string, List<string>> d = [];
+
+        foreach (var word in _words)
+        {
+            for (int i = 1; i <= word.Length; i++)
+            {
+                var prefix = word[..i];
+
+                if (d.TryGetValue(prefix, out var value))
+                {
+                    value.Add(word);
+                }
+                else
+                {
+                    d[prefix] = [word];
+                }
+            }
+        }
+
+        return d;
     }
 }

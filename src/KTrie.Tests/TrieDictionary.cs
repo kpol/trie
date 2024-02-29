@@ -5,12 +5,12 @@ using Xunit;
 
 namespace KTrie.Tests;
 
-public class StringTrieTests
+public class TrieDictionary
 {
     [Fact]
     public void AddNullKey()
     {
-        Assert.Throws<ArgumentNullException>(() => new StringTrie<bool> { { null, false } });
+        Assert.Throws<ArgumentNullException>(() => new TrieDictionary<bool> { { null!, false } });
     }
 
     [Fact]
@@ -18,9 +18,12 @@ public class StringTrieTests
     {
         const int count = 10;
 
-        var trie = new StringTrie<bool>();
+        TrieDictionary<bool> trie = [];
 
-        trie.AddRange(Enumerable.Range(0, count).Select(i => new StringEntry<bool>(i.ToString(), false)));
+        for (int i = 0; i < count; i++)
+        {
+            trie.Add(i.ToString(), false);
+        }
 
         Assert.Equal(count, trie.Count);
     }
@@ -28,13 +31,13 @@ public class StringTrieTests
     [Fact]
     public void AddWithSameKey()
     {
-        Assert.Throws<ArgumentException>(() => new StringTrie<bool> { { "a", false }, { "a", true } });
+        Assert.Throws<ArgumentException>(() => new TrieDictionary<bool> { { "a", false }, { "a", true } });
     }
 
     [Fact]
     public void Clear()
     {
-        var trie = new StringTrie<bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
+        TrieDictionary<bool> trie = new() { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
 
         trie.Clear();
 
@@ -44,7 +47,7 @@ public class StringTrieTests
     [Fact]
     public void Contains()
     {
-        var trie = new StringTrie<bool> { { "ABC", false }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
 
         var t = (IDictionary<string, bool>)trie;
 
@@ -61,7 +64,7 @@ public class StringTrieTests
     [Fact]
     public void ContainsKey()
     {
-        var trie = new StringTrie<bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
 
         Assert.True(trie.ContainsKey("ABC"));
         Assert.True(trie.ContainsKey("AB"));
@@ -76,7 +79,7 @@ public class StringTrieTests
     [Fact]
     public void ContainsKeyClear()
     {
-        var trie = new StringTrie<bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
 
         trie.Clear();
 
@@ -89,11 +92,11 @@ public class StringTrieTests
     [Fact]
     public void CopyTo()
     {
-        var trie = new StringTrie<bool> { { "ABC", true }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", true }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
 
 
         var destinationArray = new KeyValuePair<string, bool>[6];
-        trie.CopyTo(destinationArray, 1);
+        ((IDictionary<string, bool>)trie).CopyTo(destinationArray, 1);
 
         var result = destinationArray.Where(i => i.Key != null).OrderBy(i => i.Key).ToArray();
 
@@ -113,7 +116,7 @@ public class StringTrieTests
     [Fact]
     public void GetByPrefix()
     {
-        var trie = new StringTrie<bool> { { "ABC", false }, { "AB", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false }, { "AB", false } };
 
         ((ICollection<KeyValuePair<string, bool>>)trie).Add(new KeyValuePair<string, bool>("ADE", false));
         trie.Add("ABCDE", false);
@@ -129,7 +132,7 @@ public class StringTrieTests
     [Fact]
     public void GetEnumerator()
     {
-        var trie = new StringTrie<bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
 
 
         var result = trie.Select(kvp => kvp.Key).OrderBy(w => w).ToArray();
@@ -143,7 +146,7 @@ public class StringTrieTests
     [Fact]
     public void IsReadOnly()
     {
-        var trie = new StringTrie<bool>();
+        var trie = new TrieDictionary<bool>();
 
         Assert.False(((IDictionary<string, bool>)trie).IsReadOnly);
     }
@@ -151,7 +154,7 @@ public class StringTrieTests
     [Fact]
     public void ItemsGet()
     {
-        var trie = new StringTrie<bool> { { "ABC", false }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
 
         Assert.False(trie["ABC"]);
         Assert.False(trie["AB"]);
@@ -162,7 +165,7 @@ public class StringTrieTests
     [Fact]
     public void ItemsGetException()
     {
-        var trie = new StringTrie<bool> { { "ABC", false }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
 
         Assert.Throws<KeyNotFoundException>(() => trie["A"]);
     }
@@ -170,7 +173,7 @@ public class StringTrieTests
     [Fact]
     public void ItemsSet()
     {
-        var trie = new StringTrie<bool> { ["ABC"] = true };
+        var trie = new TrieDictionary<bool> { ["ABC"] = true };
 
         Assert.True(trie["ABC"]);
 
@@ -182,7 +185,7 @@ public class StringTrieTests
     [Fact]
     public void KeysValues()
     {
-        var trie = new StringTrie<bool> { { "ABC", false }, { "AB", true }, { "ADE", false }, { "ABCDE", true } };
+        var trie = new TrieDictionary<bool> { { "ABC", false }, { "AB", true }, { "ADE", false }, { "ABCDE", true } };
 
         Assert.True(new[] { "AB", "ABC", "ABCDE", "ADE" }.SequenceEqual(trie.Keys.OrderBy(s => s)));
         Assert.True(new[] { false, false, true, true }.SequenceEqual(trie.Values.OrderBy(s => s)));
@@ -193,7 +196,7 @@ public class StringTrieTests
     {
         const int initialCount = 5;
 
-        var trie = new StringTrie<bool>
+        var trie = new TrieDictionary<bool>
                 {
                     { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false }, { "X", false }
                 };
@@ -216,7 +219,7 @@ public class StringTrieTests
     [Fact]
     public void RemoveNotExists()
     {
-        var trie = new StringTrie<bool> { { "ABC", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false } };
 
         Assert.False(trie.Remove("A"));
         Assert.False(trie.Remove("X"));
@@ -225,7 +228,7 @@ public class StringTrieTests
     [Fact]
     public void RemoveNullKey()
     {
-        var trie = new StringTrie<bool> { { "ABC", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false } };
 
         // ReSharper disable once AssignNullToNotNullAttribute
         Assert.Throws<ArgumentNullException>(() => trie.Remove(null));
@@ -236,7 +239,7 @@ public class StringTrieTests
     {
         const string expectedValue = "value";
 
-        var trie = new StringTrie<string> { { "ABC", expectedValue } };
+        var trie = new TrieDictionary<string> { { "ABC", expectedValue } };
 
         Assert.True(trie.TryGetValue("ABC", out var value));
         Assert.Equal(expectedValue, value);
@@ -247,7 +250,7 @@ public class StringTrieTests
     [Fact]
     public void TryGetValueKeyIsNull()
     {
-        var trie = new StringTrie<bool> { { "ABC", false } };
+        var trie = new TrieDictionary<bool> { { "ABC", false } };
 
         // ReSharper disable once AssignNullToNotNullAttribute
         Assert.Throws<ArgumentNullException>(() => trie.TryGetValue(null, out _));

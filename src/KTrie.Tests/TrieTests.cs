@@ -1,247 +1,170 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Xunit;
 
 namespace KTrie.Tests;
 
 public class TrieTests
 {
-    [Fact]
-    public void AddWithSameKey()
+    [Theory]
+    [InlineData("a", false)]
+    [InlineData("ab", false)]
+    [InlineData("abc", true)]
+    [InlineData("abcd", false)]
+    [InlineData("abde", true)]
+    [InlineData("abce", false)]
+    [InlineData("x", false)]
+    public void Contains(string lookup, bool foundExpected)
     {
-        Assert.Throws<ArgumentException>(() =>
-            new Trie<char, bool> { { "a", false }, { "a", true } });
+        Trie trie = ["abc", "abde"];
+
+        Assert.Equal(foundExpected, trie.Contains(lookup));
     }
 
-    [Fact]
-    public void Clear()
+    [Theory]
+    [InlineData("a", new[] { "abc", "abde", "abx", "abxx" })]
+    [InlineData("x", new string[0])]
+    [InlineData("ab", new[] { "abc", "abde", "abx", "abxx" })]
+    [InlineData("abc", new[] { "abc" })]
+    [InlineData("abcc", new string[0])]
+    [InlineData("abx", new[] { "abx", "abxx" })]
+    public void GetByPrefix(string prefix, string[] found)
     {
-        var trie = new Trie<char, bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
+        Trie trie = ["abc", "abde", "abx", "abxx"];
 
-        trie.Clear();
+        var result = trie.GetByPrefix(prefix).OrderBy(s => s);
 
-        Assert.Empty(trie);
-    }
-
-    [Fact]
-    public void Contains()
-    {
-        var trie = new Trie<char, bool> { { "ABC", false }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
-
-        var t = (IDictionary<IEnumerable<char>, bool>)trie;
-
-        Assert.True(t.Contains(new KeyValuePair<IEnumerable<char>, bool>("ABC", false)));
-        Assert.True(t.Contains(new KeyValuePair<IEnumerable<char>, bool>("AB", false)));
-        Assert.True(t.Contains(new KeyValuePair<IEnumerable<char>, bool>("ADE", true)));
-        Assert.True(t.Contains(new KeyValuePair<IEnumerable<char>, bool>("ABCDE", false)));
-
-        Assert.False(t.Contains(new KeyValuePair<IEnumerable<char>, bool>("X", false)));
-        Assert.False(t.Contains(new KeyValuePair<IEnumerable<char>, bool>("ADE", false)));
-        Assert.False(t.Contains(new KeyValuePair<IEnumerable<char>, bool>("ABCD", false)));
-    }
-
-    [Fact]
-    public void ContainsKey()
-    {
-        var trie = new Trie<char, bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
-
-        Assert.True(trie.ContainsKey("ABC"));
-        Assert.True(trie.ContainsKey("AB"));
-        Assert.True(trie.ContainsKey("ADE"));
-        Assert.True(trie.ContainsKey("ABCDE"));
-
-        Assert.False(trie.ContainsKey("A"));
-        Assert.False(trie.ContainsKey("AC"));
-        Assert.False(trie.ContainsKey("ABCD"));
-    }
-
-    [Fact]
-    public void ContainsKeyClear()
-    {
-        var trie = new Trie<char, bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
-
-        trie.Clear();
-
-        Assert.False(trie.ContainsKey("ABC"));
-        Assert.False(trie.ContainsKey("AB"));
-        Assert.False(trie.ContainsKey("ADE"));
-        Assert.False(trie.ContainsKey("ABCDE"));
-    }
-
-    [Fact]
-    public void CopyTo()
-    {
-        var trie = new StringTrie<bool> { { "ABC", true }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
-
-
-        var destinationArray = new KeyValuePair<string, bool>[6];
-
-        ((ICollection<KeyValuePair<string, bool>>)trie).CopyTo(destinationArray, 1);
-
-        var result = destinationArray.Where(i => i.Key != null).OrderBy(i => i.Key).ToArray();
-
-        var expected = new[]
-            {
-                    new KeyValuePair<string, bool>("AB", false),
-                    new KeyValuePair<string, bool>("ABC", true),
-                    new KeyValuePair<string, bool>("ABCDE", false),
-                    new KeyValuePair<string, bool>("ADE", true)
-                };
-
-        Assert.Equal(new KeyValuePair<string, bool>(), destinationArray[0]);
-        Assert.Equal(new KeyValuePair<string, bool>(), destinationArray[^1]);
-        Assert.True(expected.SequenceEqual(result));
-    }
-
-    [Fact]
-    public void GetByPrefix()
-    {
-        var trie = new Trie<char, int> { { "ABC", 1 }, { "AB", 2 }, { "ABCDE", 3 } };
-        ((IDictionary<IEnumerable<char>, int>)trie).Add(new KeyValuePair<IEnumerable<char>, int>("ADE", 4));
-
-
-        var result = trie.GetByPrefix("ABC").ToArray();
-        var keys = result.Select(i => new string(i.Key.ToArray()));
-        var values = result.Select(i => i.Value);
-
-        string[] expectedResultKeys = { "ABC", "ABCDE" };
-        int[] expectedResultValues = { 1, 3 };
-
-        Assert.Equal(4, trie.Count);
-        Assert.True(expectedResultKeys.SequenceEqual(keys));
-        Assert.True(expectedResultValues.SequenceEqual(values));
-    }
-
-    [Fact]
-    public void GetEnumerator()
-    {
-        var trie = new Trie<char, bool> { { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false } };
-
-
-        var result = trie.Select(kvp => new string(kvp.Key.ToArray())).OrderBy(w => w).ToArray();
-        var resultEnumerator =
-            trie.OfType<KeyValuePair<IEnumerable<char>, bool>>().Select(k => new string(k.Key.ToArray())).OrderBy(w => w).ToArray();
-
-        Assert.Equal(new[] { "AB", "ABC", "ABCDE", "ADE" }, result);
-        Assert.Equal(new[] { "AB", "ABC", "ABCDE", "ADE" }, resultEnumerator);
-    }
-
-    [Fact]
-    public void IsReadOnly()
-    {
-        var trie = new Trie<char, bool>();
-
-        Assert.False(((IDictionary<IEnumerable<char>, bool>)trie).IsReadOnly);
-    }
-
-    [Fact]
-    public void ItemsGet()
-    {
-        var trie = new Trie<char, bool> { { "ABC", false }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
-
-        Assert.False(trie["ABC"]);
-        Assert.False(trie["AB"]);
-        Assert.True(trie["ADE"]);
-        Assert.False(trie["ABCDE"]);
-    }
-
-    [Fact]
-    public void ItemsGetException()
-    {
-        var trie = new Trie<char, bool> { { "ABC", false }, { "AB", false }, { "ADE", true }, { "ABCDE", false } };
-
-        Assert.Throws<KeyNotFoundException>(() => trie["A"]);
-    }
-
-    [Fact]
-    public void ItemsSet()
-    {
-        var trie = new Trie<char, bool> { ["ABC"] = true };
-
-        Assert.True(trie["ABC"]);
-
-        trie["AB"] = true;
-
-        Assert.True(trie["AB"]);
-
-        trie["AB"] = false;
-
-        Assert.False(trie["AB"]);
-    }
-
-    [Fact]
-    public void KeysValues()
-    {
-        var trie = new Trie<char, bool> { { "ABC", false }, { "AB", true }, { "ADE", false }, { "ABCDE", true } };
-
-        Assert.True(new[] { "AB", "ABC", "ABCDE", "ADE" }.SequenceEqual(trie.Keys.Select(i => new string(i.ToArray())).OrderBy(s => s)));
-        Assert.True(new[] { false, false, true, true }.SequenceEqual(trie.Values.OrderBy(s => s)));
+        Assert.Equal(found.OrderBy(s => s), result);
     }
 
     [Fact]
     public void Remove()
     {
+        Trie trie = ["a", "ab", "abc"];
+
+        Assert.Equal(3, trie.Count);
+
+        Assert.True(trie.Remove("a"));
+        Assert.False(trie.Remove("a"));
+
+        Assert.Equal(2, trie.Count);
+        Assert.Contains("ab", trie);
+        Assert.Contains("abc", trie);
+        Assert.DoesNotContain("a", trie);
+    }
+
+    [Fact]
+    public void Remove2()
+    {
+        Trie trie = ["a", "ab", "abc", "abd"];
+
+        Assert.Equal(4, trie.Count);
+
+        Assert.True(trie.Remove("ab"));
+        Assert.False(trie.Remove("ab"));
+
+        Assert.Equal(3, trie.Count);
+        Assert.Contains("a", trie);
+        Assert.Contains("abc", trie);
+        Assert.Contains("abd", trie);
+        Assert.DoesNotContain("ab", trie);
+    }
+
+    [Fact]
+    public void Remove3()
+    {
+        Trie trie = ["abc"];
+
+        Assert.Single(trie);
+
+        Assert.True(trie.Remove("abc"));
+        Assert.False(trie.Remove("abc"));
+
+        Assert.Empty(trie);
+        Assert.DoesNotContain("abc", trie);
+
+        trie.Add("abc");
+
+        Assert.Single(trie);
+        Assert.Equal(1, trie.Count);
+        Assert.Contains("abc", trie);
+    }
+
+    [Fact]
+    public void Remove4()
+    {
+        Trie trie = ["abc", "abcd"];
+
+        Assert.Equal(2, trie.Count);
+
+        Assert.True(trie.Remove("abc"));
+        Assert.Contains("abcd", trie);
+        Assert.DoesNotContain("abc", trie);
+
+        Assert.Single(trie);
+        Assert.Equal(1, trie.Count);
+    }
+
+    [Fact]
+    public void Remove5()
+    {
         const int initialCount = 5;
 
-        var trie = new Trie<char, bool>
-                {
-                    { "ABC", false }, { "AB", false }, { "ADE", false }, { "ABCDE", false }, { "X", false }
-                };
+        Trie trie = ["abc", "ab", "ade", "abcde", "x"];
 
-        Assert.False(((IDictionary<IEnumerable<char>, bool>)trie).Remove(new KeyValuePair<IEnumerable<char>, bool>("XY", true)));
-        Assert.False(((IDictionary<IEnumerable<char>, bool>)trie).Remove(new KeyValuePair<IEnumerable<char>, bool>("ABCD", true)));
-        Assert.False(((IDictionary<IEnumerable<char>, bool>)trie).Remove(new KeyValuePair<IEnumerable<char>, bool>("ABCDE", true)));
+        Assert.False(trie.Remove("xy"));
+        Assert.False(trie.Remove("abcd"));
+
         Assert.Equal(initialCount, trie.Count);
-        Assert.True(((IDictionary<IEnumerable<char>, bool>)trie).Remove(new KeyValuePair<IEnumerable<char>, bool>("ABCDE", false)));
+
+        Assert.True(trie.Remove("abcde"));
         Assert.Equal(initialCount - 1, trie.Count);
-        Assert.True(trie.Remove("X"));
+        Assert.True(trie.Remove("x"));
         Assert.Equal(initialCount - 2, trie.Count);
-        Assert.True(trie.Remove("ABC"));
+        Assert.True(trie.Remove("abc"));
         Assert.Equal(initialCount - 3, trie.Count);
-        Assert.False(trie.ContainsKey("ABC"));
-        Assert.True(trie.ContainsKey("AB"));
-        Assert.True(trie.ContainsKey("ADE"));
+        Assert.DoesNotContain("abc", trie);
+        Assert.Contains("ab", trie);
+        Assert.Contains("ade", trie);
     }
 
     [Fact]
-    public void RemoveNotExists()
+    public void Add()
     {
-        var trie = new Trie<char, bool> { { "ABC", false } };
+        Trie trie = ["abc", "abc"];
 
-        Assert.False(trie.Remove("A"));
-        Assert.False(trie.Remove("X"));
+        Assert.Single(trie);
+        Assert.Equal(1, trie.Count);
     }
 
     [Fact]
-    public void RemoveNullKey()
+    public void Add2()
     {
-        var trie = new Trie<char, bool> { { "ABC", false } };
+        Trie trie = ["abcd"];
 
-        // ReSharper disable once AssignNullToNotNullAttribute
-        Assert.Throws<ArgumentNullException>(() => trie.Remove(null));
+        Assert.Single(trie);
+        Assert.Equal(1, trie.Count);
+
+        trie.Add("abc");
+        Assert.Equal(2, trie.Count);
+
+        Assert.Contains("abcd", trie);
+        Assert.Contains("abc", trie);
+
+        Assert.True(trie.Remove("abc"));
+
+        Assert.Single(trie);
+        Assert.Equal(1, trie.Count);
+        Assert.Contains("abcd", trie);
     }
 
     [Fact]
-    public void TryGetValue()
+    public void GetByPrefix2()
     {
-        const string expectedValue = "value";
+        Trie trie = ["abc", "abcd"];
 
-        var trie = new Trie<char, string> { { "ABC", expectedValue } };
+        var result = trie.GetByPrefix("abc").Order().ToList();
 
-        Assert.True(trie.TryGetValue("ABC", out var value));
-        Assert.Equal(expectedValue, value);
-        Assert.False(trie.TryGetValue("A", out value));
-        Assert.Null(value);
-    }
-
-    [Fact]
-    public void TryGetValueKeyIsNull()
-    {
-        var trie = new Trie<char, bool> { { "ABC", false } };
-
-        Assert.Throws<ArgumentNullException>(() =>
-            // ReSharper disable once AssignNullToNotNullAttribute
-            trie.TryGetValue(null, out _));
+        Assert.Equal(2, result.Count);
+        Assert.Equal(["abc", "abcd"], result);
     }
 }
