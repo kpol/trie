@@ -12,6 +12,22 @@ Advantages
  - Looking up prefixes is faster. Looking up a prefix takes **O(|prefix|)** time
  - Removing takes **O(|key|)** time
 
+```
+Trie trie = ["abc", "abcd", "abx", "xyz"];
+
+        root
+         /\
+        a  x
+       /    \
+      b      y
+     / \      \
+   [c]  [x]   [z]
+   /
+ [d]
+
+ where [char] -- is end of word
+```
+
 The library provides two implementations of the trie data structure:
  - `Trie` : `ICollection<string>`
  - `TrieDictionary<TValue>` : `IDictionary<string, TValue>`
