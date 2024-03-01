@@ -12,32 +12,27 @@ Advantages
  - Looking up prefixes is faster. Looking up a prefix takes **O(|prefix|)** time
  - Removing takes **O(|key|)** time
 
-The library provides four implementations of the trie data structure:
- - `TrieSet<T>`
- - `Trie<TKey, TValue>`
- - `StringTrieSet`
- - `StringTrie<TValue>`
+The library provides two implementations of the trie data structure:
+ - `Trie` : `ICollection<string>`
+ - `TrieDictionary<TValue>` : `IDictionary<string, TValue>`
 
 Tutorial
 ------
-`Trie<TValue>` implements `IDictionary<string, TValue>` interface.
-
 Trie initialization:
 
-    var trie = new StringTrie<TValue>();
+    TrieDictionary<int> trie = [];
 
 or using constructor which accepts `IEqualityComparer<char> comparer` interface:
 
-    var trie = new StringTrie<TValue>(comparer);
+    TrieDictionary<int> trie = new(comparer);
 
 To add items to trie:
 
-    trie.Add("key", value);
-    trie.AddRange(trieEntries);
+    trie.Add("key", 17);
 
-The `Add`, `AddRange` methods throw `ArgumentNullException` if a value with the specified key already exists, however setting the `Item` property overwrites the old value. In other words, `StringTrie<TValue>` has the same behavior as `Dictionary<TKey, TValue>`.
+The `Add` method throws `ArgumentNullException` if a value with the specified key already exists, however setting the `Item` property overwrites the old value. In other words, `TrieDictionary<TValue>` has the same behavior as `Dictionary<TKey, TValue>`.
 
-The main advantage of trie is really fast prefix lookup. To find all items of `StringTrie<TValue>` which have keys with given prefix use `GetByPrefix` method which returns `IEnumerable<StringEntry<TValue>>`:
+The main advantage of trie is really fast prefix lookup. To find all items of `TrieDictionary<TValue>` which have keys with given prefix use `GetByPrefix` method which returns `IEnumerable<KeyValuePair<string, TValue>>`:
 
     var result = trie.GetByPrefix("ABC");
 
@@ -45,10 +40,11 @@ Benchmark tests
 ------
 For performance tests I used 58110 English words of length from 2 to 22 chars. The table below shows prefix lookup time comparing to the Linq `Where` and `string.StartsWith`. Number of prefixes: 10
 
-|           Method |      Mean |     Error |    StdDev |
-|----------------- |----------:|----------:|----------:|
-| Trie_GetByPrefix |  1.879 ms | 0.0258 ms | 0.0229 ms |
-|  Linq_StartsWith | 42.685 ms | 0.5857 ms | 0.5192 ms |
+| Method                         | Mean       | Error    | StdDev   | Allocated |
+|------------------------------- |-----------:|---------:|---------:|----------:|
+| Trie_GetByPrefix               |   737.5 us |  8.74 us |  8.18 us | 327.01 KB |
+| Linq_StartsWith                | 1,414.9 us | 28.28 us | 38.71 us | 318.81 KB |
+| TrieDictionary_GetByPrefix     |   981.7 us | 19.42 us | 34.52 us | 452.47 KB |
 
 
 ------

@@ -1,13 +1,11 @@
-﻿using System;
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
 
-namespace KTrie.TestBenchmark
+namespace KTrie.TestBenchmark;
+
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-           var _ = BenchmarkRunner.Run<StringTrieTest>();
-        }
+        var _ = BenchmarkRunner.Run<StringTrieTest>();
     }
 }
