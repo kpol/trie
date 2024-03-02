@@ -50,7 +50,7 @@ The `Add` method throws `ArgumentNullException` if a value with the specified ke
 
 The main advantage of trie is really fast prefix lookup. To find all items of `TrieDictionary<TValue>` which have keys with given prefix use `GetByPrefix` method which returns `IEnumerable<KeyValuePair<string, TValue>>`:
 
-    var result = trie.GetByPrefix("ABC");
+    var result = trie.GetByPrefix("abc");
 
 Benchmark tests
 ------
