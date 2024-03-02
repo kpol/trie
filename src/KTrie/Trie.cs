@@ -17,14 +17,7 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
 
     bool ICollection<string>.IsReadOnly => false;
 
-    public void Add(string word)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(word);
-
-        TryAdd(word);
-    }
-
-    public bool TryAdd(string word)
+    public bool Add(string word)
     {
         ArgumentException.ThrowIfNullOrEmpty(word);
 
@@ -138,6 +131,13 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
     public IEnumerator<string> GetEnumerator() => GetAllTerminalNodes().Select(n => n.Word).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    void ICollection<string>.Add(string word)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(word);
+
+        Add(word);
+    }
 
     void ICollection<string>.CopyTo(string[] array, int arrayIndex)
     {
