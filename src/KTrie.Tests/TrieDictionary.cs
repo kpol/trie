@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace KTrie.Tests;
 
 public class TrieDictionary
 {
+    private static readonly (string word, int index)[] Words = GetWords();
+
     [Fact]
     public void AddNullKey()
     {
@@ -230,8 +234,7 @@ public class TrieDictionary
     {
         var trie = new TrieDictionary<bool> { { "ABC", false } };
 
-        // ReSharper disable once AssignNullToNotNullAttribute
-        Assert.Throws<ArgumentNullException>(() => trie.Remove(null));
+        Assert.Throws<ArgumentNullException>(() => trie.Remove(null!));
     }
 
     [Fact]
@@ -252,7 +255,57 @@ public class TrieDictionary
     {
         var trie = new TrieDictionary<bool> { { "ABC", false } };
 
-        // ReSharper disable once AssignNullToNotNullAttribute
-        Assert.Throws<ArgumentNullException>(() => trie.TryGetValue(null, out _));
+        Assert.Throws<ArgumentNullException>(() => trie.TryGetValue(null!, out _));
     }
+
+    [Fact]
+    public void GetByPrefix_Vocabulary()
+    {
+        var trie = GetTrie();
+
+        var result = trie.GetByPrefix("sc").ToHashSet();
+        var startsWithResult = Words.Where(w => w.word.StartsWith("sc"))
+            .Select(r=> new KeyValuePair<string, int>(r.word, r.index)).ToHashSet();
+
+        Assert.True(startsWithResult.SetEquals(result));
+    }
+
+    [Fact]
+    public void Pattern_Vocabulary()
+    {
+        var trie = GetTrie();
+
+        var result = trie.GetByPattern([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var regexResult = Words.Where(w => Regex.IsMatch(w.word, "^.c.{2}t$"))
+            .Select(r => new KeyValuePair<string, int>(r.word, r.index)).ToHashSet();
+
+        Assert.True(regexResult.SetEquals(result));
+    }
+
+    [Fact]
+    public void PrefixPattern_Vocabulary()
+    {
+        var trie = GetTrie();
+
+        var result = trie.GetByPrefix([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var regexResult = Words.Where(w => Regex.IsMatch(w.word, "^.c.{2}t"))
+            .Select(r => new KeyValuePair<string, int>(r.word, r.index)).ToHashSet();
+
+        Assert.True(regexResult.SetEquals(result));
+    }
+
+    private static TrieDictionary<int> GetTrie()
+    {
+        TrieDictionary<int> trie = [];
+
+        foreach (var word in Words)
+        {
+            trie.Add(word.word, word.index);
+        }
+
+        return trie;
+    }
+
+    private static (string word, int index)[] GetWords() => File.ReadLines("TestData/vocabulary.txt")
+        .Select((word, index) => (word, index)).ToArray();
 }

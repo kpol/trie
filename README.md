@@ -36,13 +36,14 @@ Tutorial
 ------
 Trie initialization:
 
+    // Initialization
     TrieDictionary<int> trie = [];
 
-or using constructor which accepts `IEqualityComparer<char> comparer` interface:
+    // or using constructor with comparer
+    IEqualityComparer<char> comparer = ...; // specify the comparer
+    TrieDictionary<int> trieWithComparer = new(comparer);
 
-    TrieDictionary<int> trie = new(comparer);
-
-To add items to trie:
+Adding items to trie
 
     trie.Add("key", 17);
 
@@ -52,15 +53,32 @@ The main advantage of trie is really fast prefix lookup. To find all items of `T
 
     var result = trie.GetByPrefix("abc");
 
+Another handy method is `GetByPattern(IReadOnlyList<Character> pattern)`
+
+    var result = trie.GetByPattern([Character.Any, 'c', Character.Any, Character.Any, 't']);
+
+which will return all words that match this regex: `^.c.{2}t$`, e.g.: `octet`, `scout`, `scoot`. 
+
+There are two overloads of the `GetByPrefix` method:
+ - `GetByPrefix(string prefix)`
+ - `GetByPrefix(IReadOnlyList<Character> pattern)`
+
 Benchmark tests
 ------
 For performance tests I used 58110 English words of length from 2 to 22 chars. The table below shows prefix lookup time comparing to the Linq `Where` and `string.StartsWith`. Number of prefixes: 10
 
-| Method                         | Mean       | Error    | StdDev   | Allocated |
-|------------------------------- |-----------:|---------:|---------:|----------:|
-| Trie_GetByPrefix               |   737.5 us |  8.74 us |  8.18 us | 327.01 KB |
-| Linq_StartsWith                | 1,414.9 us | 28.28 us | 38.71 us | 318.81 KB |
-| TrieDictionary_GetByPrefix     |   981.7 us | 19.42 us | 34.52 us | 452.47 KB |
+| Method                         | Mean          | Error       | StdDev      | Allocated |
+|------------------------------- |--------------:|------------:|------------:|----------:|
+| Trie_GetByPrefix               |  1,644.170 us |  16.8797 us |  15.7892 us |  782259 B |
+| LinqSimple_StartsWith          | 17,401.058 us | 137.4701 us | 128.5896 us |  675940 B |
+| Linq_StartsWith                |  1,826.997 us |  14.3963 us |  13.4664 us |  676893 B |
+| Linq_DictionaryWithAllPrefixes |    771.180 us |   4.0142 us |   3.5585 us |  673053 B |
+| Trie_PatternMatching           |      5.131 us |   0.0448 us |   0.0419 us |    9096 B |
+| Trie_PrefixPatternMatching     |     10.128 us |   0.1118 us |   0.0991 us |   14896 B |
+| String_PatternMatching         |    108.502 us |   0.7177 us |   0.6362 us |     416 B |
+| String_PrefixPatternMatching   |    110.099 us |   0.8502 us |   0.7952 us |    3432 B |
+| Regex_PatternMatching          |  4,232.071 us |  31.9178 us |  26.6528 us |     419 B |
+| Regex_PrefixPatternMatching    |  4,581.950 us |  40.7450 us |  38.1129 us |    3435 B |
 
 
 ------

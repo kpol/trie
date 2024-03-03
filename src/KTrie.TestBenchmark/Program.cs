@@ -1,11 +1,6 @@
 ﻿using BenchmarkDotNet.Running;
+using KTrie.TestBenchmark;
 
-namespace KTrie.TestBenchmark;
 
-class Program
-{
-    static void Main(string[] args)
-    {
-        var _ = BenchmarkRunner.Run<StringTrieTest>();
-    }
-}
+var _ = BenchmarkRunner.Run<StringTrieTest>();
+
