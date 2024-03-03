@@ -48,13 +48,13 @@ public class StringTrieTest
     }
 
     [Benchmark]
-    public ICollection<string> Trie_GetByPrefix()
+    public ICollection<string> Trie_StartsWith()
     {
         HashSet<string> result = [];
 
         foreach (var prefix in _prefixes)
         {
-            foreach (var res in _trie.GetByPrefix(prefix))
+            foreach (var res in _trie.StartsWith(prefix))
             {
                 result.Add(res);
             }
@@ -116,12 +116,12 @@ public class StringTrieTest
     }
 
     [Benchmark]
-    public ICollection<string> Trie_PatternMatching() =>
-        _trie.GetByPattern([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+    public ICollection<string> Trie_Matches() =>
+        _trie.Matches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
 
     [Benchmark]
-    public ICollection<string> Trie_PrefixPatternMatching() =>
-        _trie.GetByPrefix([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+    public ICollection<string> Trie_PatternStartsWith() =>
+        _trie.StartsWith([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
 
     [Benchmark]
     public ICollection<string> String_PatternMatching() =>

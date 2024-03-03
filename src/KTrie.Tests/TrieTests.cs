@@ -35,7 +35,7 @@ public class TrieTests
     {
         Trie trie = ["abc", "abde", "abx", "abxx"];
 
-        var result = trie.GetByPrefix(prefix).OrderBy(s => s);
+        var result = trie.StartsWith(prefix).OrderBy(s => s);
 
         Assert.Equal(found.OrderBy(s => s), result);
     }
@@ -166,7 +166,7 @@ public class TrieTests
     {
         Trie trie = ["abc", "abcd"];
 
-        var result = trie.GetByPrefix("abc").Order().ToList();
+        var result = trie.StartsWith("abc").Order().ToList();
 
         Assert.Equal(2, result.Count);
         Assert.Equal(["abc", "abcd"], result);
@@ -177,7 +177,7 @@ public class TrieTests
     {
         Trie trie = [.. Words];
 
-        var result = trie.GetByPrefix("sc").ToHashSet();
+        var result = trie.StartsWith("sc").ToHashSet();
         var startsWithResult = Words.Where(w => w.StartsWith("sc")).ToHashSet();
 
         Assert.True(startsWithResult.SetEquals(result));
@@ -188,7 +188,7 @@ public class TrieTests
     {
         Trie trie = [..Words];
 
-        var result = trie.GetByPattern([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var result = trie.Matches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
         var regexResult = Words.Where(w => Regex.IsMatch(w, "^.c.{2}t$")).ToHashSet();
 
         Assert.True(regexResult.SetEquals(result));
@@ -199,7 +199,7 @@ public class TrieTests
     {
         Trie trie = [.. Words];
 
-        var result = trie.GetByPrefix([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var result = trie.StartsWith([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
         var regexResult = Words.Where(w => Regex.IsMatch(w, "^.c.{2}t")).ToHashSet();
 
         Assert.True(regexResult.SetEquals(result));

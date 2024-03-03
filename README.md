@@ -29,12 +29,12 @@ Trie trie = ["abc", "abcd", "abx", "xyz"];
 ```
 
 The library provides two implementations of the trie data structure:
- - `Trie` : `ICollection<string>`
- - `TrieDictionary<TValue>` : `IDictionary<string, TValue>`
+ - `Trie` : `ICollection<string>`, this is a set which stores unique string
+ - `TrieDictionary<TValue>` : `IDictionary<string, TValue>`, this is a key-value-pair collection
 
 Tutorial
 ------
-Trie initialization:
+TrieDictionary initialization:
 
     // Initialization
     TrieDictionary<int> trie = [];
@@ -49,19 +49,19 @@ Adding items to trie
 
 The `Add` method throws `ArgumentNullException` if a value with the specified key already exists, however setting the `Item` property overwrites the old value. In other words, `TrieDictionary<TValue>` has the same behavior as `Dictionary<TKey, TValue>`.
 
-The main advantage of trie is really fast prefix lookup. To find all items of `TrieDictionary<TValue>` which have keys with given prefix use `GetByPrefix` method which returns `IEnumerable<KeyValuePair<string, TValue>>`:
+The main advantage of trie is really fast prefix lookup. To find all items of `TrieDictionary<TValue>` which have keys with given prefix use `StartsWith` method which returns `IEnumerable<KeyValuePair<string, TValue>>`:
 
-    var result = trie.GetByPrefix("abc");
+    var result = trie.StartsWith("abc");
 
-Another handy method is `GetByPattern(IReadOnlyList<Character> pattern)`
+Another handy method is `Matches(IReadOnlyList<Character> pattern)`
 
-    var result = trie.GetByPattern([Character.Any, 'c', Character.Any, Character.Any, 't']);
+    var result = trie.Matches([Character.Any, 'c', Character.Any, Character.Any, 't']);
 
 which will return all words that match this regex: `^.c.{2}t$`, e.g.: `octet`, `scout`, `scoot`. 
 
-There are two overloads of the `GetByPrefix` method:
- - `GetByPrefix(string prefix)`
- - `GetByPrefix(IReadOnlyList<Character> pattern)`
+There are two overloads of the `StartsWith` method:
+ - `StartsWith(string value)`
+ - `StartsWith(IReadOnlyList<Character> pattern)`
 
 Benchmark tests
 ------
@@ -69,17 +69,16 @@ For performance tests I used 58110 English words of length from 2 to 22 chars. T
 
 | Method                         | Mean          | Error       | StdDev      | Allocated |
 |------------------------------- |--------------:|------------:|------------:|----------:|
-| Trie_GetByPrefix               |  1,644.170 us |  16.8797 us |  15.7892 us |  782259 B |
-| LinqSimple_StartsWith          | 17,401.058 us | 137.4701 us | 128.5896 us |  675940 B |
-| Linq_StartsWith                |  1,826.997 us |  14.3963 us |  13.4664 us |  676893 B |
-| Linq_DictionaryWithAllPrefixes |    771.180 us |   4.0142 us |   3.5585 us |  673053 B |
-| Trie_PatternMatching           |      5.131 us |   0.0448 us |   0.0419 us |    9096 B |
-| Trie_PrefixPatternMatching     |     10.128 us |   0.1118 us |   0.0991 us |   14896 B |
-| String_PatternMatching         |    108.502 us |   0.7177 us |   0.6362 us |     416 B |
-| String_PrefixPatternMatching   |    110.099 us |   0.8502 us |   0.7952 us |    3432 B |
-| Regex_PatternMatching          |  4,232.071 us |  31.9178 us |  26.6528 us |     419 B |
-| Regex_PrefixPatternMatching    |  4,581.950 us |  40.7450 us |  38.1129 us |    3435 B |
-
+| Trie_StartsWith                |  1,663.334 us |  25.0298 us |  22.1883 us |  782258 B |
+| LinqSimple_StartsWith          | 17,899.727 us | 178.2255 us | 157.9923 us |  675940 B |
+| Linq_StartsWith                |  1,880.081 us |  22.4351 us |  20.9858 us |  676893 B |
+| Linq_DictionaryWithAllPrefixes |    775.352 us |   7.5212 us |   6.6673 us |  673053 B |
+| Trie_Matches                   |      5.389 us |   0.0623 us |   0.0583 us |    9096 B |
+| Trie_PatternStartsWith         |     10.924 us |   0.2181 us |   0.4455 us |   14896 B |
+| String_PatternMatching         |    116.097 us |   2.0039 us |   2.6057 us |     416 B |
+| String_PrefixPatternMatching   |    108.479 us |   1.8731 us |   1.7521 us |    3432 B |
+| Regex_PatternMatching          |  4,410.587 us |  87.8454 us |  90.2107 us |     419 B |
+| Regex_PrefixPatternMatching    |  4,309.215 us |  54.2987 us |  50.7910 us |    3435 B |
 
 ------
 &copy; Kirill Polishchuk
