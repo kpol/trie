@@ -36,13 +36,13 @@ Tutorial
 ------
 Trie initialization:
 
+    // Initialization
     TrieDictionary<int> trie = [];
+    // or using constructor with comparer
+    IEqualityComparer<char> comparer = ...; // specify the comparer
+    TrieDictionary<int> trieWithComparer = new(comparer);
 
-or using constructor which accepts `IEqualityComparer<char> comparer` interface:
-
-    TrieDictionary<int> trie = new(comparer);
-
-To add items to trie:
+Adding items to trie
 
     trie.Add("key", 17);
 
@@ -55,7 +55,7 @@ The main advantage of trie is really fast prefix lookup. To find all items of `T
 Another handy method is `GetByPattern(IReadOnlyList<Character> pattern)`
 
     trie.GetByPattern([Character.Any, 'c', Character.Any, Character.Any, 't'])
-which will return all words which match this regex: `^.c.{2}t$`, e.g.: `octet`, `scout`, `scoot`. 
+which will return all words that match this regex: `^.c.{2}t$`, e.g.: `octet`, `scout`, `scoot`. 
 
 There are two overloads of the `GetByPrefix` method:
  - `GetByPrefix(string prefix)`
