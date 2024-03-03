@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace KTrie;
 
-public sealed class Trie(IEqualityComparer<char>? comparer = null) 
+public sealed class Trie(IEqualityComparer<char>? comparer = null)
     : ICollection<string>, IReadOnlyCollection<string>
 {
     private readonly IEqualityComparer<char> _comparer = comparer ?? EqualityComparer<char>.Default;
@@ -67,6 +67,45 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
             foreach (var n in GetTerminalNodesByPrefix(prefix))
             {
                 yield return n.Word;
+            }
+        }
+    }
+
+    public IEnumerable<string> GetByPattern(IReadOnlyList<Character> pattern)
+    {
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
+
+        return _();
+
+        IEnumerable<string> _()
+        {
+            return GetNodesByPattern(pattern)
+                .Where(n => n.IsTerminal).Cast<TerminalCharTrieNode>()
+                .Select(n => n.Word);
+        }
+    }
+
+    public IEnumerable<string> GetByPrefix(IReadOnlyList<Character> pattern)
+    {
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
+
+        return _();
+
+        IEnumerable<string> _()
+        {
+            foreach (var n in GetNodesByPattern(pattern))
+            {
+                if (n.IsTerminal)
+                {
+                    yield return ((TerminalCharTrieNode)n).Word;
+                }
+
+                foreach (var terminalNode in GetDescendantTerminalNodes(n))
+                {
+                    yield return terminalNode.Word;
+                }
             }
         }
     }
@@ -159,13 +198,13 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
 
     internal IEnumerable<TerminalCharTrieNode> GetAllTerminalNodes() => GetDescendantTerminalNodes(_root);
 
-    private static IEnumerable<TerminalCharTrieNode> GetDescendantTerminalNodes(CharTrieNode node)
+    internal static IEnumerable<TerminalCharTrieNode> GetDescendantTerminalNodes(CharTrieNode node)
     {
-        Stack<CharTrieNode> stack = new(node.Children);
+        Queue<CharTrieNode> queue = new(node.Children);
 
-        while (stack.Count > 0)
+        while (queue.Count > 0)
         {
-            var n = stack.Pop();
+            var n = queue.Dequeue();
 
             if (n.IsTerminal)
             {
@@ -174,7 +213,7 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
 
             foreach (var childNode in n.Children)
             {
-                stack.Push(childNode);
+                queue.Enqueue(childNode);
             }
         }
     }
@@ -194,6 +233,56 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
         }
 
         return current;
+    }
+
+    internal IEnumerable<CharTrieNode> GetNodesByPattern(IReadOnlyList<Character> pattern)
+    {
+        Queue<(CharTrieNode node, int index)> queue = [];
+        queue.Enqueue((_root, 0));
+
+        while (queue.Count > 0)
+        {
+            var (node, index) = queue.Dequeue();
+
+            if (index == pattern.Count - 1)
+            {
+                if (pattern[index] != Character.Any)
+                {
+                    var n = GetChildNode(node, pattern[index].Char);
+
+                    if (n is not null)
+                    {
+                        yield return n;
+                    }
+                }
+                else
+                {
+                    foreach (var n in node.Children)
+                    {
+                        yield return n;
+                    }
+                }
+            }
+            else
+            {
+                if (pattern[index] != Character.Any)
+                {
+                    var n = GetChildNode(node, pattern[index].Char);
+
+                    if (n is not null)
+                    {
+                        queue.Enqueue((n, index + 1));
+                    }
+                }
+                else
+                {
+                    foreach (var n in node.Children)
+                    {
+                        queue.Enqueue((n, index + 1));
+                    }
+                }
+            }
+        }
     }
 
     private Stack<CharTrieNode> GetNodesForRemoval(string prefix)
@@ -296,5 +385,24 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
         }
 
         return null;
+    }
+}
+
+public class Character(char c)
+{
+    public static Character Any => AnyCharacter.Instance;
+
+    public char Char => c;
+
+    public static implicit operator Character(char c) => new(c);
+}
+
+internal class AnyCharacter : Character
+{
+    public static readonly AnyCharacter Instance = new();
+
+    private AnyCharacter() : base(char.MinValue)
+    {
+
     }
 }

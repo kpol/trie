@@ -1,10 +1,14 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace KTrie.Tests;
 
 public class TrieTests
 {
+    private static readonly string[] Words = GetWords();
+    
     [Theory]
     [InlineData("a", false)]
     [InlineData("ab", false)]
@@ -167,4 +171,40 @@ public class TrieTests
         Assert.Equal(2, result.Count);
         Assert.Equal(["abc", "abcd"], result);
     }
+
+    [Fact]
+    public void GetByPrefix_Vocabulary()
+    {
+        Trie trie = [.. Words];
+
+        var result = trie.GetByPrefix("sc").ToHashSet();
+        var startsWithResult = Words.Where(w => w.StartsWith("sc")).ToHashSet();
+
+        Assert.True(startsWithResult.SetEquals(result));
+    }
+
+    [Fact]
+    public void Pattern_Vocabulary()
+    {
+        Trie trie = [..Words];
+
+        var result = trie.GetByPattern([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var regexResult = Words.Where(w => Regex.IsMatch(w, "^.c.{2}t$")).ToHashSet();
+
+        Assert.True(regexResult.SetEquals(result));
+    }
+
+    [Fact]
+    public void PrefixPattern_Vocabulary()
+    {
+        Trie trie = [.. Words];
+
+        var result = trie.GetByPrefix([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var regexResult = Words.Where(w => Regex.IsMatch(w, "^.c.{2}t")).ToHashSet();
+
+        Assert.True(regexResult.SetEquals(result));
+    }
+
+
+    private static string[] GetWords() => File.ReadAllLines("TestData/vocabulary.txt");
 }

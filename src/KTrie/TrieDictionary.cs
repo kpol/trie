@@ -81,8 +81,49 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
     {
         ArgumentException.ThrowIfNullOrEmpty(prefix);
 
-        return _trie.GetTerminalNodesByPrefix(prefix)
-            .Select(t => new KeyValuePair<string, TValue>(t.Word, ((TerminalValueCharTrieNode)t).Value));
+        return _();
+
+        IEnumerable<KeyValuePair<string, TValue>> _() =>
+            _trie.GetTerminalNodesByPrefix(prefix)
+                .Select(t => new KeyValuePair<string, TValue>(t.Word, ((TerminalValueCharTrieNode)t).Value));
+    }
+
+    public IEnumerable<KeyValuePair<string, TValue>> GetByPattern(IReadOnlyList<Character> pattern)
+    {
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
+
+        return _();
+
+        IEnumerable<KeyValuePair<string, TValue>> _() =>
+            _trie.GetNodesByPattern(pattern).Where(n => n.IsTerminal).Cast<TerminalValueCharTrieNode>()
+                .Select(n => new KeyValuePair<string, TValue>(n.Word, n.Value));
+    }
+
+    public IEnumerable<KeyValuePair<string, TValue>> GetByPrefix(IReadOnlyList<Character> pattern)
+    {
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
+
+        return _();
+
+        IEnumerable<KeyValuePair<string, TValue>> _()
+        {
+            foreach (var n in _trie.GetNodesByPattern(pattern))
+            {
+                if (n.IsTerminal)
+                {
+                    var terminalNode = (TerminalValueCharTrieNode)n;
+
+                    yield return new KeyValuePair<string, TValue>(terminalNode.Word, terminalNode.Value);
+                }
+
+                foreach (var terminalNode in Trie.GetDescendantTerminalNodes(n).Cast<TerminalValueCharTrieNode>())
+                {
+                    yield return new KeyValuePair<string, TValue>(terminalNode.Word, terminalNode.Value);
+                }
+            }
+        }
     }
 
     public bool Remove(string key)
