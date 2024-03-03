@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace KTrie;
 
@@ -56,28 +57,28 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
         return true;
     }
 
-    public IEnumerable<string> GetByPrefix(string prefix)
+    public IEnumerable<string> StartsWith(string value)
     {
-        ArgumentException.ThrowIfNullOrEmpty(prefix);
+        ArgumentException.ThrowIfNullOrEmpty(value);
 
         return _();
 
         IEnumerable<string> _()
         {
-            foreach (var n in GetTerminalNodesByPrefix(prefix))
+            foreach (var n in GetTerminalNodesByPrefix(value))
             {
                 yield return n.Word;
             }
         }
     }
 
-    public IEnumerable<string> GetByPattern(IReadOnlyList<Character> pattern)
+    public IEnumerable<string> Matches(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
         ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
 
         return _();
-
+        
         IEnumerable<string> _()
         {
             return GetNodesByPattern(pattern)
@@ -86,7 +87,7 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
         }
     }
 
-    public IEnumerable<string> GetByPrefix(IReadOnlyList<Character> pattern)
+    public IEnumerable<string> StartsWith(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
         ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);

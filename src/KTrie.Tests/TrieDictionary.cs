@@ -125,7 +125,7 @@ public class TrieDictionary
         ((ICollection<KeyValuePair<string, bool>>)trie).Add(new KeyValuePair<string, bool>("ADE", false));
         trie.Add("ABCDE", false);
 
-        var result = trie.GetByPrefix("ABC").Select(t => t.Key).OrderBy(t => t);
+        var result = trie.StartsWith("ABC").Select(t => t.Key).OrderBy(t => t);
 
         string[] expectedResult = { "ABC", "ABCDE" };
 
@@ -263,7 +263,7 @@ public class TrieDictionary
     {
         var trie = GetTrie();
 
-        var result = trie.GetByPrefix("sc").ToHashSet();
+        var result = trie.StartsWith("sc").ToHashSet();
         var startsWithResult = Words.Where(w => w.word.StartsWith("sc"))
             .Select(r=> new KeyValuePair<string, int>(r.word, r.index)).ToHashSet();
 
@@ -275,7 +275,7 @@ public class TrieDictionary
     {
         var trie = GetTrie();
 
-        var result = trie.GetByPattern([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var result = trie.Matches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
         var regexResult = Words.Where(w => Regex.IsMatch(w.word, "^.c.{2}t$"))
             .Select(r => new KeyValuePair<string, int>(r.word, r.index)).ToHashSet();
 
@@ -287,7 +287,7 @@ public class TrieDictionary
     {
         var trie = GetTrie();
 
-        var result = trie.GetByPrefix([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var result = trie.StartsWith([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
         var regexResult = Words.Where(w => Regex.IsMatch(w.word, "^.c.{2}t"))
             .Select(r => new KeyValuePair<string, int>(r.word, r.index)).ToHashSet();
 

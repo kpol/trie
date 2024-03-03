@@ -77,18 +77,18 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
         return true;
     }
 
-    public IEnumerable<KeyValuePair<string, TValue>> GetByPrefix(string prefix)
+    public IEnumerable<KeyValuePair<string, TValue>> StartsWith(string value)
     {
-        ArgumentException.ThrowIfNullOrEmpty(prefix);
+        ArgumentException.ThrowIfNullOrEmpty(value);
 
         return _();
 
         IEnumerable<KeyValuePair<string, TValue>> _() =>
-            _trie.GetTerminalNodesByPrefix(prefix)
+            _trie.GetTerminalNodesByPrefix(value)
                 .Select(t => new KeyValuePair<string, TValue>(t.Word, ((TerminalValueCharTrieNode)t).Value));
     }
 
-    public IEnumerable<KeyValuePair<string, TValue>> GetByPattern(IReadOnlyList<Character> pattern)
+    public IEnumerable<KeyValuePair<string, TValue>> Matches(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
         ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
@@ -100,7 +100,7 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
                 .Select(n => new KeyValuePair<string, TValue>(n.Word, n.Value));
     }
 
-    public IEnumerable<KeyValuePair<string, TValue>> GetByPrefix(IReadOnlyList<Character> pattern)
+    public IEnumerable<KeyValuePair<string, TValue>> StartsWith(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
         ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
