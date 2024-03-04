@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace KTrie;
 
@@ -386,24 +385,5 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
         }
 
         return null;
-    }
-}
-
-public class Character(char c)
-{
-    public static Character Any => AnyCharacter.Instance;
-
-    public char Char => c;
-
-    public static implicit operator Character(char c) => new(c);
-}
-
-internal class AnyCharacter : Character
-{
-    public static readonly AnyCharacter Instance = new();
-
-    private AnyCharacter() : base(char.MinValue)
-    {
-
     }
 }
