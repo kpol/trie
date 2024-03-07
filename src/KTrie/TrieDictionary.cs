@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace KTrie;
@@ -28,6 +29,8 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
     {
         get
         {
+            ArgumentException.ThrowIfNullOrEmpty(key);
+
             if (!TryGetValue(key, out var value))
             {
                 throw new KeyNotFoundException();
@@ -35,7 +38,12 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
 
             return value;
         }
-        set => TryAdd(key, value, true);
+        set
+        {
+            ArgumentException.ThrowIfNullOrEmpty(key);
+
+            TryAdd(key, value, InsertionBehavior.OverwriteExisting);
+        }
     }
 
     public void Clear() => _trie.Clear();
@@ -44,37 +52,14 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
     {
         ArgumentException.ThrowIfNullOrEmpty(key);
 
-        if (!TryAdd(key, value))
-        {
-            throw new ArgumentException($"An item with the same key has already been added. Key: {key}", nameof(key));
-        }
+        TryAdd(key, value, InsertionBehavior.ThrowOnExisting);
     }
 
     public bool TryAdd(string key, TValue value)
     {
         ArgumentException.ThrowIfNullOrEmpty(key);
 
-        return TryAdd(key, value, false);
-    }
-
-    private bool TryAdd(string key, TValue value, bool overrideValue)
-    {
-        var terminalNode = _trie.AddNodesFromUpToBottom(key);
-
-        if (terminalNode.existingTerminalNode is not null && terminalNode.existingTerminalNode.IsTerminal)
-        {
-            if (!overrideValue) return false;
-
-            ((TerminalValueCharTrieNode)terminalNode.existingTerminalNode).Value = value;
-
-            return true;
-        }
-
-        var newTerminalNode = new TerminalValueCharTrieNode(key[^1]) { Word = key, Value = value };
-
-        _trie.AddTerminalNode(terminalNode.parent, terminalNode.existingTerminalNode, newTerminalNode, key);
-
-        return true;
+        return TryAdd(key, value, InsertionBehavior.None);
     }
 
     public IEnumerable<KeyValuePair<string, TValue>> StartsWith(string value)
@@ -140,7 +125,7 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
         return _trie.Contains(key);
     }
 
-    public bool TryGetValue(string key, out TValue value)
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
     {
         ArgumentException.ThrowIfNullOrEmpty(key);
 
@@ -153,7 +138,7 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
             return true;
         }
 
-        value = default!;
+        value = default;
 
         return false;
     }
@@ -197,10 +182,46 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
         return false;
     }
 
+    private bool TryAdd(string key, TValue value, InsertionBehavior insertionBehavior)
+    {
+        var (existingTerminalNode, parent) = _trie.AddNodesFromUpToBottom(key);
+
+        if (existingTerminalNode is not null && existingTerminalNode.IsTerminal)
+        {
+            switch (insertionBehavior)
+            {
+                case InsertionBehavior.ThrowOnExisting:
+                    throw new ArgumentException($"An item with the same key has already been added. Key: {key}", nameof(key));
+                case InsertionBehavior.None:
+                    return false;
+                case InsertionBehavior.OverwriteExisting:
+                default:
+                    ((TerminalValueCharTrieNode)existingTerminalNode).Value = value;
+
+                    return true;
+            }
+        }
+
+        var newTerminalNode = new TerminalValueCharTrieNode(key[^1]) { Word = key, Value = value };
+
+        _trie.AddTerminalNode(parent, existingTerminalNode, newTerminalNode, key);
+
+        return true;
+    }
+
     private sealed class TerminalValueCharTrieNode(char key) : TerminalCharTrieNode(key)
     {
         public TValue Value { get; set; } = default!;
 
         public override string ToString() => $"Key: {Key}, Word: {Word}, Value: {Value}";
+    }
+
+    private enum InsertionBehavior : byte
+    {
+        None = 0,
+
+        OverwriteExisting = 1,
+
+        ThrowOnExisting = 2
     }
 }
