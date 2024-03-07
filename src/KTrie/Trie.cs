@@ -6,12 +6,16 @@ using System.Linq;
 
 namespace KTrie;
 
-public sealed class Trie(IEqualityComparer<char>? comparer = null)
-    : ICollection<string>, IReadOnlyCollection<string>
+public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
 {
-    private readonly IEqualityComparer<char> _comparer = comparer ?? EqualityComparer<char>.Default;
+    private readonly IEqualityComparer<char> _comparer;
 
     private readonly CharTrieNode _root = new(char.MinValue);
+
+    public Trie(IEqualityComparer<char>? comparer = null)
+    {
+        _comparer = comparer ?? EqualityComparer<char>.Default;
+    }
 
     public int Count { get; private set; }
 
@@ -21,13 +25,13 @@ public sealed class Trie(IEqualityComparer<char>? comparer = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(word);
 
-        var node = AddNodesFromUpToBottom(word);
+        var (existingTerminalNode, parent) = AddNodesFromUpToBottom(word);
 
-        if (node.existingTerminalNode is not null && node.existingTerminalNode.IsTerminal) return false; // already exists
+        if (existingTerminalNode is not null && existingTerminalNode.IsTerminal) return false; // already exists
 
         var newTerminalNode = new TerminalCharTrieNode(word[^1]) { Word = word };
 
-        AddTerminalNode(node.parent, node.existingTerminalNode, newTerminalNode, word);
+        AddTerminalNode(parent, existingTerminalNode, newTerminalNode, word);
 
         return true;
     }
