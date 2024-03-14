@@ -31,7 +31,7 @@ where [char] -- is end of word
 ```
 
 The library provides two implementations of the trie data structure:
- - `Trie` : `ICollection<string>`, this is a set which stores unique string
+ - `Trie` : `ICollection<string>`, this is a set which stores unique strings
  - `TrieDictionary<TValue>` : `IDictionary<string, TValue>`, this is a key-value-pair collection
 
 Tutorial
