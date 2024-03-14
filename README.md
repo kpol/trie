@@ -13,19 +13,19 @@ Advantages
  - Removing takes **O(|key|)** time
 
 ```
-Trie trie = ["star", "start", "stack", "stop", "key"];
+Trie trie = ["star", "start", "stack", "stop", "stay", "key"];
 
-         {root}
-           /\
-          s  k
-         /    \
-        t      e
-       / \      \
-     a    o     [y]
-    / \    \
-  [r]  c   [p]
-  /     \
-[t]     [k]
+          {root}
+            /\
+           s  k
+          /    \
+         t      e
+        / \      \
+      a    o     [y]
+    / | \    \
+  [r][y] c   [p]
+  /       \
+[t]       [k]
 
 where [char] -- is end of word
 ```
