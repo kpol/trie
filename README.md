@@ -13,17 +13,19 @@ Advantages
  - Removing takes **O(|key|)** time
 
 ```
-Trie trie = ["abc", "abcd", "abx", "xyz"];
+Trie trie = ["star", "start", "stack", "stop", "elf"];
 
-        root
-         /\
-        a  x
-       /    \
-      b      y
-     / \      \
-   [c]  [x]   [z]
-   /
- [d]
+         {root}
+           /\
+          s  e
+         /    \
+        t      l
+       / \      \
+     a    o     [f]
+    / \    \
+  [r]  c   [p]
+  /     \
+[t]     [k]
 
  where [char] -- is end of word
 ```
