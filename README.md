@@ -27,7 +27,7 @@ Trie trie = ["star", "start", "stack", "stop", "elf"];
   /     \
 [t]     [k]
 
- where [char] -- is end of word
+where [char] -- is end of word
 ```
 
 The library provides two implementations of the trie data structure:
