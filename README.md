@@ -13,15 +13,15 @@ Advantages
  - Removing takes **O(|key|)** time
 
 ```
-Trie trie = ["star", "start", "stack", "stop", "elf"];
+Trie trie = ["star", "start", "stack", "stop", "key"];
 
          {root}
            /\
-          s  e
+          s  k
          /    \
-        t      l
+        t      e
        / \      \
-     a    o     [f]
+     a    o     [y]
     / \    \
   [r]  c   [p]
   /     \
