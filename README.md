@@ -13,23 +13,25 @@ Advantages
  - Removing takes **O(|key|)** time
 
 ```
-Trie trie = ["abc", "abcd", "abx", "xyz"];
+Trie trie = ["star", "start", "stack", "stop", "stay", "key"];
 
-        root
-         /\
-        a  x
-       /    \
-      b      y
-     / \      \
-   [c]  [x]   [z]
-   /
- [d]
+          {root}
+            /\
+           s  k
+          /    \
+         t      e
+        / \      \
+      a    o     [y]
+    / | \    \
+  [r][y] c   [p]
+  /       \
+[t]       [k]
 
- where [char] -- is end of word
+where [char] -- is end of word
 ```
 
 The library provides two implementations of the trie data structure:
- - `Trie` : `ICollection<string>`, this is a set which stores unique string
+ - `Trie` : `ICollection<string>`, this is a set which stores unique strings
  - `TrieDictionary<TValue>` : `IDictionary<string, TValue>`, this is a key-value-pair collection
 
 Tutorial
