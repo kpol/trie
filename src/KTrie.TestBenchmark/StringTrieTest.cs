@@ -9,10 +9,10 @@ namespace KTrie.TestBenchmark;
 [MemoryDiagnoser(false)]
 public class StringTrieTest
 {
-    private readonly string[] _words;
-    private readonly ILookup<char, string> _wordGroups;
-    private readonly Dictionary<string, List<string>> _dictWithAllPrefixes;
-    private readonly Trie _trie;
+    private string[] _words;
+    private ILookup<char, string> _wordGroups;
+    private Dictionary<string, List<string>> _dictWithAllPrefixes;
+    private Trie _trie;
 
     private readonly string[] _prefixes =
     [
@@ -38,13 +38,20 @@ public class StringTrieTest
         "ve"
     ];
 
-    public StringTrieTest()
+    [GlobalSetup]
+    public void GlobalSetup()
     {
         _words = GetWords();
         _wordGroups = PreprocessWords();
         _dictWithAllPrefixes = LoadAllPrefixes();
 
         _trie = [.. _words];
+    }
+
+    [Benchmark]
+    public void Load_Trie()
+    {
+        Trie _ = [.. _words];
     }
 
     [Benchmark]
@@ -64,7 +71,7 @@ public class StringTrieTest
     }
 
     [Benchmark]
-    public ICollection<string> LinqSimple_StartsWith()
+    public ICollection<string> Linq_StartsWith()
     {
         HashSet<string> result = [];
 
@@ -80,13 +87,14 @@ public class StringTrieTest
     }
 
     [Benchmark]
-    public ICollection<string> Linq_StartsWith()
+    public ICollection<string> Linq_GroupedByFirstLetter_StartsWith()
     {
         HashSet<string> result = [];
 
         foreach (var prefix in _prefixes)
         {
             var firstLetter = prefix[0];
+
             foreach (var word in _wordGroups[firstLetter].Where(w => w.StartsWith(prefix)))
             {
                 result.Add(word);
@@ -139,7 +147,7 @@ public class StringTrieTest
     public ICollection<string> Regex_PrefixPatternMatching() =>
         _words.Where(word => Regex.IsMatch(word, "^.c.{2}t")).ToHashSet();
 
-    private static string[] GetWords() => File.ReadAllLines("TestData/vocabulary.txt");
+    private static string[] GetWords() => File.ReadAllLines("TestData/words_alpha.txt");
 
     private ILookup<char, string> PreprocessWords()
     {
