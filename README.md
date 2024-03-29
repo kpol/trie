@@ -69,19 +69,20 @@ Benchmark tests
 ------
 For performance tests I used 370105 English words (from: https://github.com/dwyl/english-words).
 
-| Method                               | Mean          | Error        | StdDev       | Allocated   |
-|------------------------------------- |--------------:|-------------:|-------------:|------------:|
-| Load_Trie                            | 217,385.15 us | 4,059.770 us | 4,343.909 us | 72741.36 KB |
-| Trie_StartsWith                      |  11,394.07 us |   219.067 us |   466.849 us |  3604.64 KB |
-| Linq_StartsWith                      | 113,231.21 us |   780.126 us |   729.730 us |  2843.55 KB |
-| Linq_GroupedByFirstLetter_StartsWith |  10,244.17 us |    91.502 us |    85.591 us |  2844.41 KB |
-| Linq_DictionaryWithAllPrefixes       |   4,194.10 us |    41.829 us |    39.127 us |  2840.66 KB |
-| Trie_Matches                         |      15.03 us |     0.287 us |     0.268 us |    18.05 KB |
-| Trie_PatternStartsWith               |      62.98 us |     0.482 us |     0.451 us |    65.65 KB |
-| String_PatternMatching               |     875.47 us |     7.239 us |     6.045 us |     1.56 KB |
-| String_PrefixPatternMatching         |     895.72 us |     3.407 us |     2.660 us |    33.72 KB |
-| Regex_PatternMatching                |  26,587.50 us |   206.420 us |   182.986 us |     1.57 KB |
-| Regex_PrefixPatternMatching          |  27,545.88 us |   188.291 us |   176.127 us |    33.73 KB |
+| Method                               | Mean          | Error        | StdDev       | Allocated    |
+|------------------------------------- |--------------:|-------------:|-------------:|-------------:|
+| Load_Trie                            | 211,557.48 us | 1,981.525 us | 1,756.570 us |  72741.27 KB |
+| Load_DictionaryWithAllPrefixes       | 577,935.48 us | 6,096.177 us | 5,090.583 us | 317389.57 KB |
+| Trie_StartsWith                      |  11,420.52 us |    78.619 us |    69.693 us |   3604.64 KB |
+| Linq_StartsWith                      | 117,671.68 us | 1,777.550 us | 1,662.722 us |   2843.55 KB |
+| Linq_GroupedByFirstLetter_StartsWith |  10,544.61 us |   206.705 us |   339.622 us |   2844.41 KB |
+| Linq_DictionaryWithAllPrefixes       |   3,593.91 us |    69.920 us |    80.520 us |   2840.66 KB |
+| Trie_Matches                         |      15.13 us |     0.298 us |     0.446 us |     18.05 KB |
+| Trie_PatternStartsWith               |      66.07 us |     1.306 us |     1.504 us |     65.65 KB |
+| String_PatternMatching               |     887.43 us |    13.962 us |    12.377 us |      1.56 KB |
+| String_PrefixPatternMatching         |     911.10 us |    14.261 us |    13.340 us |     33.72 KB |
+| Regex_PatternMatching                |  27,146.03 us |   232.150 us |   217.153 us |      1.57 KB |
+| Regex_PrefixPatternMatching          |  27,414.88 us |   265.306 us |   248.168 us |     33.73 KB |
 
 ------
 &copy; Kirill Polishchuk

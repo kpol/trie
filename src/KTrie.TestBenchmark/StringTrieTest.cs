@@ -55,6 +55,12 @@ public class StringTrieTest
     }
 
     [Benchmark]
+    public void Load_DictionaryWithAllPrefixes()
+    {
+        LoadAllPrefixes();
+    }
+
+    [Benchmark]
     public ICollection<string> Trie_StartsWith()
     {
         HashSet<string> result = [];
