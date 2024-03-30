@@ -1,7 +1,7 @@
 Trie
 ------
 **Trie** (a.k.a. prefix tree)  is an ordered tree data structure that is used to store an associative array where the keys are usually strings. All the descendants of a node have a common prefix of the string associated with that node, and the root is associated with the empty string.  
-*Reference*: [Wikipedia &ndash; trie](http://en.wikipedia.org/wiki/Trie)
+*Reference*: [Wikipedia](http://en.wikipedia.org/wiki/Trie)
 
 [![CI Build](https://github.com/kpol/trie/workflows/CI%20Build/badge.svg)](https://github.com/kpol/trie/actions?query=workflow%3A%22CI+Build%22)
 [![Nuget](https://img.shields.io/nuget/v/KTrie.svg?logo=nuget)](https://www.nuget.org/packages/KTrie)
@@ -67,20 +67,22 @@ There are two overloads of the `StartsWith` method:
 
 Benchmark tests
 ------
-For performance tests I used 58110 English words of length from 2 to 22 chars. The table below shows prefix lookup time comparing to the Linq `Where` and `string.StartsWith`. Number of prefixes: 10
+For performance tests I used 370105 English words (from: https://github.com/dwyl/english-words).
 
-| Method                         | Mean          | Error       | StdDev      | Allocated |
-|------------------------------- |--------------:|------------:|------------:|----------:|
-| Trie_StartsWith                |  1,663.334 us |  25.0298 us |  22.1883 us |  782258 B |
-| LinqSimple_StartsWith          | 17,899.727 us | 178.2255 us | 157.9923 us |  675940 B |
-| Linq_StartsWith                |  1,880.081 us |  22.4351 us |  20.9858 us |  676893 B |
-| Linq_DictionaryWithAllPrefixes |    775.352 us |   7.5212 us |   6.6673 us |  673053 B |
-| Trie_Matches                   |      5.389 us |   0.0623 us |   0.0583 us |    9096 B |
-| Trie_PatternStartsWith         |     10.924 us |   0.2181 us |   0.4455 us |   14896 B |
-| String_PatternMatching         |    116.097 us |   2.0039 us |   2.6057 us |     416 B |
-| String_PrefixPatternMatching   |    108.479 us |   1.8731 us |   1.7521 us |    3432 B |
-| Regex_PatternMatching          |  4,410.587 us |  87.8454 us |  90.2107 us |     419 B |
-| Regex_PrefixPatternMatching    |  4,309.215 us |  54.2987 us |  50.7910 us |    3435 B |
+| Method                               | Mean          | Error        | StdDev       | Allocated    |
+|------------------------------------- |--------------:|-------------:|-------------:|-------------:|
+| Load_Trie                            | 211,557.48 us | 1,981.525 us | 1,756.570 us |  72741.27 KB |
+| Load_DictionaryWithAllPrefixes       | 577,935.48 us | 6,096.177 us | 5,090.583 us | 317389.57 KB |
+| Trie_StartsWith                      |  11,420.52 us |    78.619 us |    69.693 us |   3604.64 KB |
+| Linq_StartsWith                      | 117,671.68 us | 1,777.550 us | 1,662.722 us |   2843.55 KB |
+| Linq_GroupedByFirstLetter_StartsWith |  10,544.61 us |   206.705 us |   339.622 us |   2844.41 KB |
+| Linq_DictionaryWithAllPrefixes       |   3,593.91 us |    69.920 us |    80.520 us |   2840.66 KB |
+| Trie_Matches                         |      15.13 us |     0.298 us |     0.446 us |     18.05 KB |
+| Trie_PatternStartsWith               |      66.07 us |     1.306 us |     1.504 us |     65.65 KB |
+| String_PatternMatching               |     887.43 us |    13.962 us |    12.377 us |      1.56 KB |
+| String_PrefixPatternMatching         |     911.10 us |    14.261 us |    13.340 us |     33.72 KB |
+| Regex_PatternMatching                |  27,146.03 us |   232.150 us |   217.153 us |      1.57 KB |
+| Regex_PrefixPatternMatching          |  27,414.88 us |   265.306 us |   248.168 us |     33.73 KB |
 
 ------
 &copy; Kirill Polishchuk

@@ -36,7 +36,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         return true;
     }
 
-    public void Clear() => _root.Children.Clear();
+    public void Clear() => _root.Children = [];
 
     public bool Contains(string word)
     {
@@ -66,13 +66,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
 
         return _();
 
-        IEnumerable<string> _()
-        {
-            foreach (var n in GetTerminalNodesByPrefix(value))
-            {
-                yield return n.Word;
-            }
-        }
+        IEnumerable<string> _() => GetTerminalNodesByPrefix(value).Select(n => n.Word);
     }
 
     public IEnumerable<string> Matches(IReadOnlyList<Character> pattern)
@@ -82,12 +76,11 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
 
         return _();
         
-        IEnumerable<string> _()
-        {
-            return GetNodesByPattern(pattern)
-                .Where(n => n.IsTerminal).Cast<TerminalCharTrieNode>()
+        IEnumerable<string> _() =>
+            GetNodesByPattern(pattern)
+                .Where(n => n.IsTerminal)
+                .Cast<TerminalCharTrieNode>()
                 .Select(n => n.Word);
-        }
     }
 
     public IEnumerable<string> StartsWith(IReadOnlyList<Character> pattern)
@@ -143,7 +136,8 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
     {
         if (existingNode is not null)
         {
-            newTerminalNode.Children.AddRange(existingNode.Children);
+            newTerminalNode.CopyChildren(existingNode.Children);
+
             RemoveChildFromNode(parent, word[^1]);
         }
 
@@ -193,7 +187,6 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
                 "The number of elements in the trie is greater than the available space from index to the end of the destination array.");
         }
 
-
         foreach (var node in GetAllTerminalNodes())
         {
             array[arrayIndex++] = node.Word;
@@ -215,9 +208,9 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
                 yield return (TerminalCharTrieNode)n;
             }
 
-            foreach (var childNode in n.Children)
+            for (var i = 0; i < n.Children.Length; i++)
             {
-                queue.Enqueue(childNode);
+                queue.Enqueue(n.Children[i]);
             }
         }
     }
@@ -226,9 +219,9 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
     {
         var current = _root;
 
-        foreach (var c in prefix)
+        for (var i = 0; i < prefix.Length; i++)
         {
-            current = GetChildNode(current, c);
+            current = GetChildNode(current, prefix[i]);
 
             if (current is null)
             {
@@ -261,9 +254,9 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
                 }
                 else
                 {
-                    foreach (var n in node.Children)
+                    for (var i = 0; i < node.Children.Length; i++)
                     {
-                        yield return n;
+                        yield return node.Children[i];
                     }
                 }
             }
@@ -280,9 +273,9 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
                 }
                 else
                 {
-                    foreach (var n in node.Children)
+                    for (var i = 0; i < node.Children.Length; i++)
                     {
-                        queue.Enqueue((n, index + 1));
+                        queue.Enqueue((node.Children[i], index + 1));
                     }
                 }
             }
@@ -296,8 +289,9 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         Stack<CharTrieNode> nodesUpToBottom = [];
         nodesUpToBottom.Push(_root);
 
-        foreach (var c in prefix)
+        for (var i = 0; i < prefix.Length; i++)
         {
+            var c = prefix[i];
             current = GetChildNode(current, c);
 
             if (current is not null)
@@ -319,12 +313,11 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
 
         var node = nodesUpToBottom.Pop();
 
-        if (node.Children.Count == 0)
+        if (node.Children.Length == 0)
         {
-            while (node.Children.Count == 0 && nodesUpToBottom.Count > 0)
+            while (node.Children.Length == 0 && nodesUpToBottom.Count > 0)
             {
                 var parent = nodesUpToBottom.Pop();
-
                 RemoveChildFromNode(parent, node.Key);
 
                 if (parent.IsTerminal) return;
@@ -337,7 +330,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         {
             // convert node to non-terminal node
             CharTrieNode n = new(node.Key);
-            n.Children.AddRange(node.Children);
+            n.CopyChildren(node.Children);
 
             var parent = nodesUpToBottom.Count == 0 ? _root : nodesUpToBottom.Pop();
 
@@ -348,40 +341,36 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
 
     private void AddToNode(CharTrieNode node, CharTrieNode nodeToAdd)
     {
-        foreach (var n in node.Children)
+        for (var i = 0; i < node.Children.Length; i++)
         {
-            if (_comparer.Equals(nodeToAdd.Key, n.Key))
+            if (_comparer.Equals(nodeToAdd.Key, node.Children[i].Key))
             {
                 return;
             }
         }
 
-        node.Children.Add(nodeToAdd);
+        node.AddChild(nodeToAdd);
     }
 
     private void RemoveChildFromNode(CharTrieNode node, char key)
     {
-        int index = -1;
-
-        for (int i = 0; i < node.Children.Count; i++)
+        for (int i = 0; i < node.Children.Length; i++)
         {
             if (_comparer.Equals(key, node.Children[i].Key))
             {
-                index = i;
+                node.RemoveChildAt(i);
+
                 break;
             }
-        }
-
-        if (index != -1)
-        {
-            node.Children.RemoveAt(index);
         }
     }
 
     private CharTrieNode? GetChildNode(CharTrieNode node, char key)
     {
-        foreach (var n in node.Children)
+        for (var i = 0; i < node.Children.Length; i++)
         {
+            var n = node.Children[i];
+
             if (_comparer.Equals(key, n.Key))
             {
                 return n;

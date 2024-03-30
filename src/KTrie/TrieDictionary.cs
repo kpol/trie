@@ -12,10 +12,10 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
 {
     private readonly Trie _trie = new(comparer);
 
-    public ICollection<string> Keys => _trie.ToList();
+    public ICollection<string> Keys => [.. _trie];
 
     public ICollection<TValue> Values =>
-        _trie.GetAllTerminalNodes().Select(t => ((TerminalValueCharTrieNode)t).Value).ToList();
+        [.. _trie.GetAllTerminalNodes().Select(t => ((TerminalValueCharTrieNode)t).Value)];
 
     public int Count => _trie.Count;
 
@@ -162,7 +162,6 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
             throw new ArgumentException(
                 "The number of elements in the trie is greater than the available space from index to the end of the destination array.");
         }
-
 
         foreach (var node in _trie.GetAllTerminalNodes().Cast<TerminalValueCharTrieNode>())
         {

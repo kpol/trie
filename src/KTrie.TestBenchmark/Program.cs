@@ -2,5 +2,4 @@
 using KTrie.TestBenchmark;
 
 
-var _ = BenchmarkRunner.Run<StringTrieTest>();
-
+BenchmarkRunner.Run<StringTrieTest>();
