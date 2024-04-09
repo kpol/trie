@@ -205,6 +205,16 @@ public class TrieTests
         Assert.True(regexResult.SetEquals(result));
     }
 
+    [Fact]
+    public void Clear()
+    {
+        Trie trie = ["abc", "abcd"];
+
+        trie.Clear();
+
+        Assert.Equal(0, trie.Count);
+        Assert.Empty(trie);
+    }
 
     private static string[] GetWords() => File.ReadAllLines("TestData/vocabulary.txt");
 }

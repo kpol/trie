@@ -36,7 +36,11 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         return true;
     }
 
-    public void Clear() => _root.Children = [];
+    public void Clear()
+    {
+        _root.Children = [];
+        Count = 0;
+    }
 
     public bool Contains(string word)
     {
