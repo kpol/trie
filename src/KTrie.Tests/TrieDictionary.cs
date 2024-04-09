@@ -46,6 +46,7 @@ public class TrieDictionary
         trie.Clear();
 
         Assert.Empty(trie);
+        Assert.Equal(0, trie.Count);
     }
 
     [Fact]
@@ -91,6 +92,8 @@ public class TrieDictionary
         Assert.False(trie.ContainsKey("AB"));
         Assert.False(trie.ContainsKey("ADE"));
         Assert.False(trie.ContainsKey("ABCDE"));
+        Assert.Equal(0, trie.Count);
+        Assert.Empty(trie);
     }
 
     [Fact]
