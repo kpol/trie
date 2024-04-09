@@ -212,8 +212,14 @@ public class TrieTests
 
         trie.Clear();
 
-        Assert.Equal(0, trie.Count);
         Assert.Empty(trie);
+        Assert.Equal(0, trie.Count);
+
+        trie.Add("abc");
+
+        Assert.Single(trie);
+        Assert.Equal(1, trie.Count);
+        Assert.Contains("abc", trie);
     }
 
     private static string[] GetWords() => File.ReadAllLines("TestData/vocabulary.txt");
