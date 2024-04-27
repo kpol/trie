@@ -42,9 +42,11 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         Count = 0;
     }
 
-    public bool Contains(string word)
+    public bool Contains(string word) => Contains(word.AsSpan());
+
+    public bool Contains(ReadOnlySpan<char> word)
     {
-        ArgumentException.ThrowIfNullOrEmpty(word);
+        SpanException.ThrowIfNullOrEmpty(word);
 
         var node = GetNode(word);
 
@@ -111,7 +113,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         }
     }
 
-    internal (CharTrieNode? existingTerminalNode, CharTrieNode parent) AddNodesFromUpToBottom(string word)
+    internal (CharTrieNode? existingTerminalNode, CharTrieNode parent) AddNodesFromUpToBottom(ReadOnlySpan<char> word)
     {
         var current = _root;
 
@@ -149,10 +151,14 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         Count++;
     }
 
-    internal IEnumerable<TerminalCharTrieNode> GetTerminalNodesByPrefix(string prefix)
+    internal IEnumerable<TerminalCharTrieNode> GetTerminalNodesByPrefix(ReadOnlySpan<char> prefix)
     {
         var node = GetNode(prefix);
+        return GetTerminalNodes(node);
+    }
 
+    private IEnumerable<TerminalCharTrieNode> GetTerminalNodes(CharTrieNode? node)
+    {
         if (node is null)
         {
             yield break;
@@ -219,7 +225,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         }
     }
 
-    internal CharTrieNode? GetNode(string prefix)
+    internal CharTrieNode? GetNode(ReadOnlySpan<char> prefix)
     {
         var current = _root;
 
