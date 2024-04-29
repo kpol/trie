@@ -7,8 +7,7 @@ internal static class SpanException
 {
     public static void ThrowIfNullOrEmpty(ReadOnlySpan<char> argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
     {
-        // Check first before doing a string allocation
-        if (argument.IsWhiteSpace())
+        if (argument.IsEmpty)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(argument.ToString(), paramName);
         }
