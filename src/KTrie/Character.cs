@@ -1,20 +1,8 @@
 ﻿namespace KTrie;
 
-public class Character(char c)
+public readonly record struct Character(char Char)
 {
-    public static Character Any => AnyCharacter.Instance;
-
-    public char Char => c;
+    public static Character Any { get; } = new();
 
     public static implicit operator Character(char c) => new(c);
-
-    private class AnyCharacter : Character
-    {
-        public static readonly AnyCharacter Instance = new();
-
-        private AnyCharacter() : base(char.MinValue)
-        {
-
-        }
-    }
 }

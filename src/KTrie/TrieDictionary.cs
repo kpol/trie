@@ -64,13 +64,16 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
 
     public IEnumerable<KeyValuePair<string, TValue>> StartsWith(string value)
     {
-        ArgumentException.ThrowIfNullOrEmpty(value);
+        return StartsWith(value.AsSpan());
+    }
 
-        return _();
+    public IEnumerable<KeyValuePair<string, TValue>> StartsWith(ReadOnlySpan<char> value)
+    {
+        SpanException.ThrowIfNullOrEmpty(value);
 
-        IEnumerable<KeyValuePair<string, TValue>> _() =>
-            _trie.GetTerminalNodesByPrefix(value)
-                .Select(t => new KeyValuePair<string, TValue>(t.Word, ((TerminalValueCharTrieNode)t).Value));
+        var nodes = _trie.GetTerminalNodesByPrefix(value);
+        
+        return nodes.Select(t => new KeyValuePair<string, TValue>(t.Word, ((TerminalValueCharTrieNode)t).Value));
     }
 
     public IEnumerable<KeyValuePair<string, TValue>> Matches(IReadOnlyList<Character> pattern)
@@ -78,11 +81,9 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
         ArgumentNullException.ThrowIfNull(pattern);
         ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
 
-        return _();
-
-        IEnumerable<KeyValuePair<string, TValue>> _() =>
-            _trie.GetNodesByPattern(pattern).Where(n => n.IsTerminal).Cast<TerminalValueCharTrieNode>()
-                .Select(n => new KeyValuePair<string, TValue>(n.Word, n.Value));
+        return _trie.GetNodesByPattern(pattern)
+            .Where(n => n.IsTerminal).Cast<TerminalValueCharTrieNode>()
+            .Select(n => new KeyValuePair<string, TValue>(n.Word, n.Value));
     }
 
     public IEnumerable<KeyValuePair<string, TValue>> StartsWith(IReadOnlyList<Character> pattern)
