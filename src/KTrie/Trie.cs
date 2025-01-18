@@ -253,9 +253,9 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
 
             if (index == pattern.Count - 1)
             {
-                if (pattern[index] != Character.Any)
+                if (pattern[index].Char is {} ch)
                 {
-                    var n = GetChildNode(node, pattern[index].Char);
+                    var n = GetChildNode(node, ch);
 
                     if (n is not null)
                     {
@@ -272,9 +272,9 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
             }
             else
             {
-                if (pattern[index] != Character.Any)
+                if (pattern[index].Char is {} ch)
                 {
-                    var n = GetChildNode(node, pattern[index].Char);
+                    var n = GetChildNode(node, ch);
 
                     if (n is not null)
                     {

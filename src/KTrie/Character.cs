@@ -1,6 +1,6 @@
 ﻿namespace KTrie;
 
-public readonly record struct Character(char Char)
+public readonly record struct Character(char? Char)
 {
     public static Character Any { get; } = new();
 
