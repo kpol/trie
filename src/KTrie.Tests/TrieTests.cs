@@ -222,5 +222,19 @@ public class TrieTests
         Assert.Contains("abc", trie);
     }
 
+    [Fact]
+    public void NullCharacter()
+    {
+        const string wordWithCharacter = "\0abc";
+        const string wordWithoutCharacter = "abc";
+
+        Trie trie = [wordWithCharacter, wordWithoutCharacter];
+
+        var startsWithNull = trie.StartsWith(['\0']).ToArray();
+        
+        Assert.Contains(wordWithCharacter, startsWithNull);
+        Assert.DoesNotContain(wordWithoutCharacter, startsWithNull);
+    }
+
     private static string[] GetWords() => File.ReadAllLines("TestData/vocabulary.txt");
 }
