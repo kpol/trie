@@ -11,7 +11,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.102
+        dotnet-version: 8.X
     - name: Build with dotnet
       run: dotnet build ./src/*.sln --configuration Release
     - name: Test
@@ -25,11 +25,11 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.102
+          dotnet-version: 8.X
       - name: Pack
         run: dotnet pack ./src/*.sln --configuration Release -o package
       - name: Publish artifact
-        uses: actions/upload-artifact@v1.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: NuGet Package
           path: package
