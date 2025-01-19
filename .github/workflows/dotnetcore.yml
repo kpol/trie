@@ -29,7 +29,7 @@ jobs:
       - name: Pack
         run: dotnet pack ./src/*.sln --configuration Release -o package
       - name: Publish artifact
-        uses: actions/upload-artifact@v1.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: NuGet Package
           path: package
