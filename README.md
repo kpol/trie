@@ -1,13 +1,11 @@
-Trie
-------
+## Trie
 **Trie** (a.k.a. prefix tree)  is an ordered tree data structure that is used to store an associative array where the keys are usually strings. All the descendants of a node have a common prefix of the string associated with that node, and the root is associated with the empty string.  
 *Reference*: [Wikipedia](http://en.wikipedia.org/wiki/Trie)
 
 [![CI Build](https://github.com/kpol/trie/workflows/CI%20Build/badge.svg)](https://github.com/kpol/trie/actions?query=workflow%3A%22CI+Build%22)
 [![Nuget](https://img.shields.io/nuget/v/KTrie.svg?logo=nuget)](https://www.nuget.org/packages/KTrie)
 
-Advantages
-------
+## Advantages
  - Looking up keys is faster. Looking up a key of length **key** takes **O(|key|)** time
  - Looking up prefixes is faster. Looking up a prefix takes **O(|prefix|)** time
  - Removing takes **O(|key|)** time
@@ -31,42 +29,91 @@ where [char] -- is end of word
 ```
 
 The library provides two implementations of the trie data structure:
- - `Trie` : `ICollection<string>`, this is a set which stores unique strings
- - `TrieDictionary<TValue>` : `IDictionary<string, TValue>`, this is a key-value-pair collection
+ - `Trie` — implements `ICollection<string>` for storing unique strings.
+ - `TrieDictionary<TValue>` — implements `IDictionary<string, TValue>` for key-value pairs.
 
-Tutorial
-------
-TrieDictionary initialization:
+## Usage
 
-    // Initialization
-    TrieDictionary<int> trie = [];
+### Initialization
+```csharp
+// Initialization
+TrieDictionary<int> trie = [];
 
-    // or using constructor with comparer
-    IEqualityComparer<char> comparer = ...; // specify the comparer
-    TrieDictionary<int> trieWithComparer = new(comparer);
-
+// or using constructor with comparer
+IEqualityComparer<char> comparer = ...; // specify the comparer
+TrieDictionary<int> trieWithComparer = new(comparer);
+```
 Adding items to trie
 
-    trie.Add("key", 17);
+```csharp
+trie.Add("key", 17);
+```
 
-The `Add` method throws `ArgumentNullException` if a value with the specified key already exists, however setting the `Item` property overwrites the old value. In other words, `TrieDictionary<TValue>` has the same behavior as `Dictionary<TKey, TValue>`.
+- `Add` throws `ArgumentNullException` if the key is `null`, and `ArgumentException` if the key already exists.
+- You can overwrite existing values using the indexer:
 
-The main advantage of trie is really fast prefix lookup. To find all items of `TrieDictionary<TValue>` which have keys with given prefix use `StartsWith` method which returns `IEnumerable<KeyValuePair<string, TValue>>`:
+```csharp
+trie["key"] = 42;
+```
+(similar to `Dictionary<TKey, TValue>`)
 
-    var result = trie.StartsWith("abc");
+### Prefix Lookup
 
-Another handy method is `Matches(IReadOnlyList<Character> pattern)`
+The main benefit of a Trie is extremely fast prefix lookup.
 
-    var result = trie.Matches([Character.Any, 'c', Character.Any, Character.Any, 't']);
-
-which will return all words that match this regex: `^.c.{2}t$`, e.g.: `octet`, `scout`, `scoot`. 
+```csharp
+var result = trie.StartsWith("abc");
+```
+This returns all key-value pairs where the key starts with the prefix `"abc"`.
 
 There are two overloads of the `StartsWith` method:
  - `StartsWith(string value)`
  - `StartsWith(IReadOnlyList<Character> pattern)`
 
-Benchmark tests
-------
+### Pattern Matching
+
+The `Matches` method supports character pattern-based search:
+
+```csharp
+var result = trie.Matches([Character.Any, 'c', Character.Any, Character.Any, 't']);
+```
+
+This matches words like `octet`, `scout`, or `scoot` using the regex-like pattern: `^.c.{2}t$`.
+
+### API Methods
+
+#### `bool TryAdd(string key, TValue value)`
+Attempts to add the specified key and value to the `TrieDictionary`.  
+Returns `true` if the key/value pair was added successfully; `false` if the key already exists.
+
+```csharp
+bool success = trie.TryAdd("alpha", 1);
+```
+
+#### `bool Remove(string key)`
+Removes the value with the specified key from the `TrieDictionary`.  
+Returns `true` if the element is successfully removed; `false` if the key was not found.
+
+```csharp
+bool removed = trie.Remove("key");
+```
+
+#### `bool ContainsKey(string key)`
+Determines whether the `TrieDictionary` contains the specified key.
+
+```csharp
+bool containsKey = trie.ContainsKey("key");
+```
+
+#### `bool TryGetValue(string key, out TValue value)`
+Attempts to get the value associated with the specified key.  
+Returns `true` if the key is found; otherwise, `false`.
+
+```csharp
+bool keyFound = trie.TryGetValue("key", out int value);
+```
+
+## Benchmark tests
 For performance tests I used 370105 English words (from: https://github.com/dwyl/english-words).
 
 | Method                               | Mean          | Error        | StdDev       | Allocated    |
