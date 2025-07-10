@@ -111,7 +111,7 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
                     yield return new KeyValuePair<string, TValue>(terminalNode.Word, terminalNode.Value);
                 }
 
-                foreach (var terminalNode in Trie.GetDescendantTerminalNodes(n).Cast<TerminalValueCharTrieNode>())
+                foreach (TerminalValueCharTrieNode terminalNode in TrieEnumerables.GetDescendantTerminalNodes(n))
                 {
                     yield return new KeyValuePair<string, TValue>(terminalNode.Word, terminalNode.Value);
                 }

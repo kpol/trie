@@ -1,8 +1,10 @@
 ﻿using KTrie.TrieNodes;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace KTrie;
 
@@ -132,7 +134,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
                     yield return ((TerminalCharTrieNode)n).Word;
                 }
 
-                foreach (var terminalNode in GetDescendantTerminalNodes(n))
+                foreach (var terminalNode in TrieEnumerables.GetDescendantTerminalNodes(n))
                 {
                     yield return terminalNode.Word;
                 }
@@ -196,7 +198,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
             yield return (TerminalCharTrieNode)node;
         }
 
-        foreach (var n in GetDescendantTerminalNodes(node))
+        foreach (var n in TrieEnumerables.GetDescendantTerminalNodes(node))
         {
             yield return n;
         }
@@ -230,9 +232,9 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         }
     }
 
-    internal IEnumerable<TerminalCharTrieNode> GetAllTerminalNodes() => GetDescendantTerminalNodes(_root);
+    internal IEnumerable<TerminalCharTrieNode> GetAllTerminalNodes() => TrieEnumerables.GetDescendantTerminalNodes(_root);
 
-    internal static IEnumerable<TerminalCharTrieNode> GetDescendantTerminalNodes(CharTrieNode node)
+    internal static IEnumerable<TerminalCharTrieNode> GetDescendantTerminalNodes1(CharTrieNode node)
     {
         Queue<CharTrieNode> queue = new(node.Children);
 
@@ -250,8 +252,11 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
                 queue.Enqueue(n.Children[i]);
             }
         }
+
+        //QueuePool<CharTrieNode>.Return(queue);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal CharTrieNode? GetNode(ReadOnlySpan<char> prefix)
     {
         var current = _root;
@@ -425,18 +430,95 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private CharTrieNode? GetChildNode(CharTrieNode node, char key)
     {
-        for (var i = 0; i < node.Children.Length; i++)
-        {
-            var n = node.Children[i];
+        var children = node.Children;
 
-            if (_comparer.Equals(key, n.Key))
-            {
-                return n;
-            }
+        for (int i = 0; i < children.Length; i++)
+        {
+            if (_comparer.Equals(key, children[i].Key))
+                return children[i];
+        }
+        return null;
+    }
+}
+
+internal static class QueuePool<T>
+{
+    private static readonly ConcurrentQueue<Queue<T>> _pool = new();
+
+    public static Queue<T> Rent()
+    {
+        if (_pool.TryDequeue(out var queue))
+        {
+            return queue;
         }
 
-        return null;
+        return new Queue<T>();
+    }
+
+    public static void Return(Queue<T> queue)
+    {
+        queue.Clear();
+        _pool.Enqueue(queue);
+    }
+}
+
+internal static class TrieEnumerables
+{
+    public static DescendantTerminalNodeEnumerable GetDescendantTerminalNodes(CharTrieNode root)
+        => new(root);
+
+    public readonly struct DescendantTerminalNodeEnumerable(CharTrieNode root) : IEnumerable<TerminalCharTrieNode>
+    {
+        private readonly CharTrieNode _root = root;
+
+        public Enumerator GetEnumerator() => new(_root);
+
+        IEnumerator<TerminalCharTrieNode> IEnumerable<TerminalCharTrieNode>.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public struct Enumerator : IEnumerator<TerminalCharTrieNode>
+        {
+            private Queue<CharTrieNode> _queue;
+            private TerminalCharTrieNode? _current;
+
+            public Enumerator(CharTrieNode root)
+            {
+                _queue = QueuePool<CharTrieNode>.Rent();
+                _current = null;
+
+                foreach (var child in root.Children)
+                    _queue.Enqueue(child);
+            }
+
+            public readonly TerminalCharTrieNode Current => _current!;
+            readonly object IEnumerator.Current => Current;
+
+            public bool MoveNext()
+            {
+                while (_queue.Count > 0)
+                {
+                    var node = _queue.Dequeue();
+
+                    foreach (var child in node.Children)
+                        _queue.Enqueue(child);
+
+                    if (node.IsTerminal)
+                    {
+                        _current = (TerminalCharTrieNode)node;
+                        return true;
+                    }
+                }
+
+                _current = null;
+                return false;
+            }
+
+            public void Reset() => throw new NotSupportedException();
+
+            public void Dispose() => QueuePool<CharTrieNode>.Return(_queue);
+        }
     }
 }
