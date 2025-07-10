@@ -57,17 +57,23 @@ public class StringTrieTest
     [Benchmark]
     public void Load_DictionaryWithAllPrefixes()
     {
-        LoadAllPrefixes();
+        var _ = LoadAllPrefixes();
     }
 
     [Benchmark]
-    public ICollection<string> Trie_StartsWith()
+    public void Load_DictionaryGroupedByFirstLetter()
+    {
+        var _ = PreprocessWords().ToList();
+    }
+
+    [Benchmark]
+    public ICollection<string> EnumerateByPrefix_Trie()
     {
         HashSet<string> result = [];
 
         foreach (var prefix in _prefixes)
         {
-            foreach (var res in _trie.StartsWith(prefix))
+            foreach (var res in _trie.EnumerateByPrefix(prefix))
             {
                 result.Add(res);
             }
@@ -77,7 +83,7 @@ public class StringTrieTest
     }
 
     [Benchmark]
-    public ICollection<string> Linq_StartsWith()
+    public ICollection<string> StartsWith_Linq()
     {
         HashSet<string> result = [];
 
@@ -93,7 +99,7 @@ public class StringTrieTest
     }
 
     [Benchmark]
-    public ICollection<string> Linq_GroupedByFirstLetter_StartsWith()
+    public ICollection<string> StartsWith_Linq_GroupedByFirstLetter()
     {
         HashSet<string> result = [];
 
@@ -111,7 +117,7 @@ public class StringTrieTest
     }
 
     [Benchmark]
-    public ICollection<string> Linq_DictionaryWithAllPrefixes()
+    public ICollection<string> StartsWith_DictionaryWithAllPrefixes()
     {
         HashSet<string> result = [];
 
@@ -130,12 +136,12 @@ public class StringTrieTest
     }
 
     [Benchmark]
-    public ICollection<string> Trie_Matches() =>
-        _trie.Matches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+    public ICollection<string> Trie_EnumerateMatches() =>
+        _trie.EnumerateMatches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
 
     [Benchmark]
-    public ICollection<string> Trie_PatternStartsWith() =>
-        _trie.StartsWith([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+    public ICollection<string> Trie_Pattern_EnumerateByPrefix() =>
+        _trie.EnumerateByPrefix([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
 
     [Benchmark]
     public ICollection<string> String_PatternMatching() =>

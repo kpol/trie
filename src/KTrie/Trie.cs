@@ -25,11 +25,18 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
     {
         ArgumentException.ThrowIfNullOrEmpty(word);
 
+        return Add(word.AsSpan());
+    }
+
+    public bool Add(ReadOnlySpan<char> word)
+    {
+        SpanException.ThrowIfNullOrEmpty(word);
+
         var (existingTerminalNode, parent) = AddNodesFromUpToBottom(word);
 
         if (existingTerminalNode is not null && existingTerminalNode.IsTerminal) return false; // already exists
 
-        var newTerminalNode = new TerminalCharTrieNode(word[^1]) { Word = word };
+        var newTerminalNode = new TerminalCharTrieNode(word[^1]) { Word = word.ToString() };
 
         AddTerminalNode(parent, existingTerminalNode, newTerminalNode, word);
 
@@ -42,7 +49,12 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         Count = 0;
     }
 
-    public bool Contains(string word) => Contains(word.AsSpan());
+    public bool Contains(string word)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(word);
+
+        return Contains(word.AsSpan());
+    }
 
     public bool Contains(ReadOnlySpan<char> word)
     {
@@ -57,6 +69,13 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
     {
         ArgumentException.ThrowIfNullOrEmpty(word);
 
+        return Remove(word.AsSpan());
+    }
+
+    public bool Remove(ReadOnlySpan<char> word)
+    {
+        SpanException.ThrowIfNullOrEmpty(word);
+
         var nodesUpToBottom = GetNodesForRemoval(word);
 
         if (nodesUpToBottom.Count == 0) return false;
@@ -66,30 +85,38 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         return true;
     }
 
-    public IEnumerable<string> StartsWith(string value)
+    public string? LongestPrefixMatch(string input) => LongestPrefixMatch(input.AsSpan());
+
+    public string? LongestPrefixMatch(ReadOnlySpan<char> input)
     {
-        ArgumentException.ThrowIfNullOrEmpty(value);
+        SpanException.ThrowIfNullOrEmpty(input);
 
-        return _();
+        var longest = GetTerminalCharTrieNodeLongestPrefixMatch(input);
 
-        IEnumerable<string> _() => GetTerminalNodesByPrefix(value).Select(n => n.Word);
+        return longest?.Word;
     }
 
-    public IEnumerable<string> Matches(IReadOnlyList<Character> pattern)
+    public IEnumerable<string> EnumerateByPrefix(string prefix) => EnumerateByPrefix(prefix.AsSpan());
+
+    public IEnumerable<string> EnumerateByPrefix(ReadOnlySpan<char> prefix)
+    {
+        SpanException.ThrowIfNullOrEmpty(prefix);
+
+        return GetTerminalNodesByPrefix(prefix).Select(n => n.Word);
+    }
+
+    public IEnumerable<string> EnumerateMatches(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
         ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
 
-        return _();
-        
-        IEnumerable<string> _() =>
-            GetNodesByPattern(pattern)
+        return GetNodesByPattern(pattern)
                 .Where(n => n.IsTerminal)
                 .Cast<TerminalCharTrieNode>()
                 .Select(n => n.Word);
     }
 
-    public IEnumerable<string> StartsWith(IReadOnlyList<Character> pattern)
+    public IEnumerable<string> EnumerateByPrefix(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
         ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
@@ -138,7 +165,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         return (terminalNode, current);
     }
 
-    internal void AddTerminalNode(CharTrieNode parent, CharTrieNode? existingNode, CharTrieNode newTerminalNode, string word)
+    internal void AddTerminalNode(CharTrieNode parent, CharTrieNode? existingNode, CharTrieNode newTerminalNode, ReadOnlySpan<char> word)
     {
         if (existingNode is not null)
         {
@@ -157,7 +184,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         return GetTerminalNodes(node);
     }
 
-    private IEnumerable<TerminalCharTrieNode> GetTerminalNodes(CharTrieNode? node)
+    private static IEnumerable<TerminalCharTrieNode> GetTerminalNodes(CharTrieNode? node)
     {
         if (node is null)
         {
@@ -253,7 +280,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
 
             if (index == pattern.Count - 1)
             {
-                if (pattern[index].Char is {} ch)
+                if (pattern[index].Char is { } ch)
                 {
                     var n = GetChildNode(node, ch);
 
@@ -272,7 +299,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
             }
             else
             {
-                if (pattern[index].Char is {} ch)
+                if (pattern[index].Char is { } ch)
                 {
                     var n = GetChildNode(node, ch);
 
@@ -292,7 +319,30 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         }
     }
 
-    private Stack<CharTrieNode> GetNodesForRemoval(string prefix)
+    internal TerminalCharTrieNode? GetTerminalCharTrieNodeLongestPrefixMatch(ReadOnlySpan<char> input)
+    {
+        var node = _root;
+        TerminalCharTrieNode? longest = null;
+
+        foreach (char c in input)
+        {
+            node = GetChildNode(node, c);
+
+            if (node is null)
+            {
+                break;
+            }
+
+            if (node.IsTerminal)
+            {
+                longest = (TerminalCharTrieNode)node;
+            }
+        }
+
+        return longest;
+    }
+
+    private Stack<CharTrieNode> GetNodesForRemoval(ReadOnlySpan<char> prefix)
     {
         var current = _root;
 

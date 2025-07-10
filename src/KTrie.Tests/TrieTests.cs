@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -35,9 +36,25 @@ public class TrieTests
     {
         Trie trie = ["abc", "abde", "abx", "abxx"];
 
-        var result = trie.StartsWith(prefix).OrderBy(s => s);
+        var result = trie.EnumerateByPrefix(prefix).OrderBy(s => s);
 
         Assert.Equal(found.OrderBy(s => s), result);
+    }
+
+    [Fact]
+    public void GetByPrefix_Null_Prefix()
+    {
+        Trie trie = ["abc", "abde", "abx", "abxx"];
+
+        Assert.Throws<ArgumentNullException>(() => trie.EnumerateByPrefix((string)null));
+    }
+
+    [Fact]
+    public void EnumerateMatches_Null_Exception()
+    {
+        Trie trie = ["abc", "abde", "abx", "abxx"];
+
+        Assert.Throws<ArgumentNullException>(() => trie.EnumerateMatches(null));
     }
 
     [Fact]
@@ -166,18 +183,18 @@ public class TrieTests
     {
         Trie trie = ["abc", "abcd"];
 
-        var result = trie.StartsWith("abc").Order().ToList();
+        var result = trie.EnumerateByPrefix("abc").Order().ToList();
 
         Assert.Equal(2, result.Count);
         Assert.Equal(["abc", "abcd"], result);
     }
 
     [Fact]
-    public void GetByPrefix_Vocabulary()
+    public void EnumerateByPrefix_Vocabulary()
     {
         Trie trie = [.. Words];
 
-        var result = trie.StartsWith("sc").ToHashSet();
+        var result = trie.EnumerateByPrefix("sc").ToHashSet();
         var startsWithResult = Words.Where(w => w.StartsWith("sc")).ToHashSet();
 
         Assert.True(startsWithResult.SetEquals(result));
@@ -188,7 +205,18 @@ public class TrieTests
     {
         Trie trie = [..Words];
 
-        var result = trie.Matches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var result = trie.EnumerateMatches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var regexResult = Words.Where(w => Regex.IsMatch(w, "^.c.{2}t$")).ToHashSet();
+
+        Assert.True(regexResult.SetEquals(result));
+    }
+
+    [Fact]
+    public void EnumerateMatches_Exception()
+    {
+        Trie trie = [.. Words];
+
+        var result = trie.EnumerateMatches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
         var regexResult = Words.Where(w => Regex.IsMatch(w, "^.c.{2}t$")).ToHashSet();
 
         Assert.True(regexResult.SetEquals(result));
@@ -199,7 +227,7 @@ public class TrieTests
     {
         Trie trie = [.. Words];
 
-        var result = trie.StartsWith([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var result = trie.EnumerateByPrefix([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
         var regexResult = Words.Where(w => Regex.IsMatch(w, "^.c.{2}t")).ToHashSet();
 
         Assert.True(regexResult.SetEquals(result));
@@ -230,10 +258,30 @@ public class TrieTests
 
         Trie trie = [wordWithCharacter, wordWithoutCharacter];
 
-        var startsWithNull = trie.StartsWith(['\0']).ToArray();
+        var enumerateByPrefixWithNull = trie.EnumerateByPrefix(['\0']).ToArray();
         
-        Assert.Contains(wordWithCharacter, startsWithNull);
-        Assert.DoesNotContain(wordWithoutCharacter, startsWithNull);
+        Assert.Contains(wordWithCharacter, enumerateByPrefixWithNull);
+        Assert.DoesNotContain(wordWithoutCharacter, enumerateByPrefixWithNull);
+    }
+
+    [Fact]
+    public void LongestPrefixMatch()
+    {
+        Trie trie = ["a", "ap", "apple", "apply", "bat"];
+
+        var result = trie.LongestPrefixMatch("applesauce");
+
+        Assert.Equal("apple", result);
+    }
+
+    [Fact]
+    public void LongestPrefixMatch_ReturnsNull()
+    {
+        Trie trie = ["a", "ap", "apple", "apply", "bat"];
+
+        var result = trie.LongestPrefixMatch("ball");
+
+        Assert.Null(result);
     }
 
     private static string[] GetWords() => File.ReadAllLines("TestData/vocabulary.txt");
