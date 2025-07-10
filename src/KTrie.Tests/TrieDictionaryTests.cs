@@ -7,7 +7,7 @@ using Xunit;
 
 namespace KTrie.Tests;
 
-public class TrieDictionary
+public class TrieDictionaryTests
 {
     private static readonly (string word, int index)[] Words = GetWords();
 
@@ -128,7 +128,7 @@ public class TrieDictionary
         ((ICollection<KeyValuePair<string, bool>>)trie).Add(new KeyValuePair<string, bool>("ADE", false));
         trie.Add("ABCDE", false);
 
-        var result = trie.StartsWith("ABC").Select(t => t.Key).OrderBy(t => t);
+        var result = trie.EnumerateByPrefix("ABC").Select(t => t.Key).OrderBy(t => t);
 
         string[] expectedResult = { "ABC", "ABCDE" };
 
@@ -262,11 +262,11 @@ public class TrieDictionary
     }
 
     [Fact]
-    public void GetByPrefix_Vocabulary()
+    public void EnumerateByPrefix_Vocabulary()
     {
         var trie = GetTrie();
 
-        var result = trie.StartsWith("sc").ToHashSet();
+        var result = trie.EnumerateByPrefix("sc").ToHashSet();
         var startsWithResult = Words.Where(w => w.word.StartsWith("sc"))
             .Select(r=> new KeyValuePair<string, int>(r.word, r.index)).ToHashSet();
 
@@ -278,7 +278,7 @@ public class TrieDictionary
     {
         var trie = GetTrie();
 
-        var result = trie.Matches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var result = trie.EnumerateMatches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
         var regexResult = Words.Where(w => Regex.IsMatch(w.word, "^.c.{2}t$"))
             .Select(r => new KeyValuePair<string, int>(r.word, r.index)).ToHashSet();
 
@@ -290,11 +290,46 @@ public class TrieDictionary
     {
         var trie = GetTrie();
 
-        var result = trie.StartsWith([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
+        var result = trie.EnumerateByPrefix([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
         var regexResult = Words.Where(w => Regex.IsMatch(w.word, "^.c.{2}t"))
             .Select(r => new KeyValuePair<string, int>(r.word, r.index)).ToHashSet();
 
         Assert.True(regexResult.SetEquals(result));
+    }
+
+    [Fact]
+    public void LongestPrefixMatch()
+    {
+        TrieDictionary<int> trie = new()
+        {
+            { "a", 1 },
+            { "ap", 2 },
+            { "apple", 3 },
+            { "apply", 4 },
+            { "bat", 5 },
+        };
+
+        var result = trie.LongestPrefixMatch("applesauce");
+
+        Assert.Equal("apple", result.Value.Key);
+        Assert.Equal(3, result.Value.Value);
+    }
+
+    [Fact]
+    public void LongestPrefixMatch_ReturnsNull()
+    {
+        TrieDictionary<int> trie = new()
+        {
+            { "a", 1 },
+            { "ap", 2 },
+            { "apple", 3 },
+            { "apply", 4 },
+            { "bat", 5 },
+        };
+
+        var result = trie.LongestPrefixMatch("ball");
+
+        Assert.Null(result);
     }
 
     private static TrieDictionary<int> GetTrie()
@@ -309,6 +344,5 @@ public class TrieDictionary
         return trie;
     }
 
-    private static (string word, int index)[] GetWords() => File.ReadLines("TestData/vocabulary.txt")
-        .Select((word, index) => (word, index)).ToArray();
+    private static (string word, int index)[] GetWords() => [.. File.ReadLines("TestData/vocabulary.txt").Select((word, index) => (word, index))];
 }

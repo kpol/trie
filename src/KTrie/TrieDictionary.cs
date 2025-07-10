@@ -27,9 +27,15 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
 
     public TValue this[string key]
     {
+        get => this[key.AsSpan()];
+        set => this[key.AsSpan()] = value;
+    }
+
+    public TValue this[ReadOnlySpan<char> key]
+    {
         get
         {
-            ArgumentException.ThrowIfNullOrEmpty(key);
+            SpanException.ThrowIfNullOrEmpty(key);
 
             if (!TryGetValue(key, out var value))
             {
@@ -40,7 +46,7 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
         }
         set
         {
-            ArgumentException.ThrowIfNullOrEmpty(key);
+            SpanException.ThrowIfNullOrEmpty(key);
 
             TryAdd(key, value, InsertionBehavior.OverwriteExisting);
         }
@@ -48,35 +54,36 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
 
     public void Clear() => _trie.Clear();
 
-    public void Add(string key, TValue value)
+    public void Add(string key, TValue value) => Add(key.AsSpan(), value);
+
+    public void Add(ReadOnlySpan<char> key, TValue value)
     {
-        ArgumentException.ThrowIfNullOrEmpty(key);
+        SpanException.ThrowIfNullOrEmpty(key);
 
         TryAdd(key, value, InsertionBehavior.ThrowOnExisting);
     }
 
-    public bool TryAdd(string key, TValue value)
+    public bool TryAdd(string key, TValue value) => TryAdd(key.AsSpan(), value);
+
+    public bool TryAdd(ReadOnlySpan<char> key, TValue value)
     {
-        ArgumentException.ThrowIfNullOrEmpty(key);
+        SpanException.ThrowIfNullOrEmpty(key);
 
         return TryAdd(key, value, InsertionBehavior.None);
     }
 
-    public IEnumerable<KeyValuePair<string, TValue>> StartsWith(string value)
-    {
-        return StartsWith(value.AsSpan());
-    }
+    public IEnumerable<KeyValuePair<string, TValue>> EnumerateByPrefix(string prefix) => EnumerateByPrefix(prefix.AsSpan());
 
-    public IEnumerable<KeyValuePair<string, TValue>> StartsWith(ReadOnlySpan<char> value)
+    public IEnumerable<KeyValuePair<string, TValue>> EnumerateByPrefix(ReadOnlySpan<char> prefix)
     {
-        SpanException.ThrowIfNullOrEmpty(value);
+        SpanException.ThrowIfNullOrEmpty(prefix);
 
-        var nodes = _trie.GetTerminalNodesByPrefix(value);
-        
+        var nodes = _trie.GetTerminalNodesByPrefix(prefix);
+
         return nodes.Select(t => new KeyValuePair<string, TValue>(t.Word, ((TerminalValueCharTrieNode)t).Value));
     }
 
-    public IEnumerable<KeyValuePair<string, TValue>> Matches(IReadOnlyList<Character> pattern)
+    public IEnumerable<KeyValuePair<string, TValue>> EnumerateMatches(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
         ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
@@ -86,7 +93,7 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
             .Select(n => new KeyValuePair<string, TValue>(n.Word, n.Value));
     }
 
-    public IEnumerable<KeyValuePair<string, TValue>> StartsWith(IReadOnlyList<Character> pattern)
+    public IEnumerable<KeyValuePair<string, TValue>> EnumerateByPrefix(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
         ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
@@ -112,23 +119,42 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
         }
     }
 
-    public bool Remove(string key)
+    public bool Remove(string key) => Remove(key.AsSpan());
+
+    public bool Remove(ReadOnlySpan<char> key)
     {
-        ArgumentException.ThrowIfNullOrEmpty(key);
+        SpanException.ThrowIfNullOrEmpty(key);
 
         return _trie.Remove(key);
     }
 
-    public bool ContainsKey(string key)
+    public KeyValuePair<string, TValue>? LongestPrefixMatch(string input) => LongestPrefixMatch(input.AsSpan());
+
+    public KeyValuePair<string, TValue>? LongestPrefixMatch(ReadOnlySpan<char> input)
     {
-        ArgumentException.ThrowIfNullOrEmpty(key);
+        SpanException.ThrowIfNullOrEmpty(input);
+
+        var node = (TerminalValueCharTrieNode?)_trie.GetTerminalCharTrieNodeLongestPrefixMatch(input);
+
+        if (node is null) return null;
+
+        return new KeyValuePair<string, TValue>(node.Word, node.Value);
+    }
+
+    public bool ContainsKey(string key) => ContainsKey(key.AsSpan());
+
+    public bool ContainsKey(ReadOnlySpan<char> key)
+    {
+        SpanException.ThrowIfNullOrEmpty(key);
 
         return _trie.Contains(key);
     }
 
-    public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value) => TryGetValue(key.AsSpan(), out value);
+
+    public bool TryGetValue(ReadOnlySpan<char> key, [MaybeNullWhen(false)] out TValue value)
     {
-        ArgumentException.ThrowIfNullOrEmpty(key);
+        SpanException.ThrowIfNullOrEmpty(key);
 
         var node = _trie.GetNode(key);
 
@@ -182,7 +208,7 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
         return false;
     }
 
-    private bool TryAdd(string key, TValue value, InsertionBehavior insertionBehavior)
+    private bool TryAdd(ReadOnlySpan<char> key, TValue value, InsertionBehavior insertionBehavior)
     {
         var (existingTerminalNode, parent) = _trie.AddNodesFromUpToBottom(key);
 
@@ -202,7 +228,7 @@ public sealed class TrieDictionary<TValue>(IEqualityComparer<char>? comparer = n
             }
         }
 
-        var newTerminalNode = new TerminalValueCharTrieNode(key[^1]) { Word = key, Value = value };
+        var newTerminalNode = new TerminalValueCharTrieNode(key[^1]) { Word = key.ToString(), Value = value };
 
         _trie.AddTerminalNode(parent, existingTerminalNode, newTerminalNode, key);
 

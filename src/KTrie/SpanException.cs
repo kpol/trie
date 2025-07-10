@@ -9,7 +9,7 @@ internal static class SpanException
     {
         if (argument.IsEmpty)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(argument.ToString(), paramName);
+            throw new ArgumentNullException(nameof(argument));
         }
     }
 }
