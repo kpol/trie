@@ -107,17 +107,6 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         return GetTerminalNodesByPrefix(prefix).Select(n => n.Word);
     }
 
-    public IEnumerable<string> EnumerateMatches(IReadOnlyList<Character> pattern)
-    {
-        ArgumentNullException.ThrowIfNull(pattern);
-        ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
-
-        return GetNodesByPattern(pattern)
-                .Where(n => n.IsTerminal)
-                .Cast<TerminalCharTrieNode>()
-                .Select(n => n.Word);
-    }
-
     public IEnumerable<string> EnumerateByPrefix(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
@@ -140,6 +129,17 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
                 }
             }
         }
+    }
+
+    public IEnumerable<string> EnumerateMatches(IReadOnlyList<Character> pattern)
+    {
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
+
+        return GetNodesByPattern(pattern)
+                .Where(n => n.IsTerminal)
+                .Cast<TerminalCharTrieNode>()
+                .Select(n => n.Word);
     }
 
     internal (CharTrieNode? existingTerminalNode, CharTrieNode parent) AddNodesFromUpToBottom(ReadOnlySpan<char> word)
@@ -441,84 +441,5 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
                 return children[i];
         }
         return null;
-    }
-}
-
-internal static class QueuePool<T>
-{
-    private static readonly ConcurrentQueue<Queue<T>> _pool = new();
-
-    public static Queue<T> Rent()
-    {
-        if (_pool.TryDequeue(out var queue))
-        {
-            return queue;
-        }
-
-        return new Queue<T>();
-    }
-
-    public static void Return(Queue<T> queue)
-    {
-        queue.Clear();
-        _pool.Enqueue(queue);
-    }
-}
-
-internal static class TrieEnumerables
-{
-    public static DescendantTerminalNodeEnumerable GetDescendantTerminalNodes(CharTrieNode root)
-        => new(root);
-
-    public readonly struct DescendantTerminalNodeEnumerable(CharTrieNode root) : IEnumerable<TerminalCharTrieNode>
-    {
-        private readonly CharTrieNode _root = root;
-
-        public Enumerator GetEnumerator() => new(_root);
-
-        IEnumerator<TerminalCharTrieNode> IEnumerable<TerminalCharTrieNode>.GetEnumerator() => GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public struct Enumerator : IEnumerator<TerminalCharTrieNode>
-        {
-            private Queue<CharTrieNode> _queue;
-            private TerminalCharTrieNode? _current;
-
-            public Enumerator(CharTrieNode root)
-            {
-                _queue = QueuePool<CharTrieNode>.Rent();
-                _current = null;
-
-                foreach (var child in root.Children)
-                    _queue.Enqueue(child);
-            }
-
-            public readonly TerminalCharTrieNode Current => _current!;
-            readonly object IEnumerator.Current => Current;
-
-            public bool MoveNext()
-            {
-                while (_queue.Count > 0)
-                {
-                    var node = _queue.Dequeue();
-
-                    foreach (var child in node.Children)
-                        _queue.Enqueue(child);
-
-                    if (node.IsTerminal)
-                    {
-                        _current = (TerminalCharTrieNode)node;
-                        return true;
-                    }
-                }
-
-                _current = null;
-                return false;
-            }
-
-            public void Reset() => throw new NotSupportedException();
-
-            public void Dispose() => QueuePool<CharTrieNode>.Return(_queue);
-        }
     }
 }

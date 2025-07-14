@@ -48,19 +48,19 @@ public class StringTrieTest
         _trie = [.. _words];
     }
 
-    //[Benchmark]
+    [Benchmark]
     public void Load_Trie()
     {
         Trie _ = [.. _words];
     }
 
-    //[Benchmark]
+    [Benchmark]
     public void Load_DictionaryWithAllPrefixes()
     {
         var _ = LoadAllPrefixes();
     }
 
-    //[Benchmark]
+    [Benchmark]
     public void Load_DictionaryGroupedByFirstLetter()
     {
         var _ = PreprocessWords().ToList();
@@ -116,7 +116,7 @@ public class StringTrieTest
         return result;
     }
 
-    //[Benchmark]
+    [Benchmark]
     public ICollection<string> StartsWith_DictionaryWithAllPrefixes()
     {
         HashSet<string> result = [];
@@ -135,27 +135,27 @@ public class StringTrieTest
         return result;
     }
 
-    //[Benchmark]
+    [Benchmark]
     public ICollection<string> Trie_EnumerateMatches() =>
         _trie.EnumerateMatches([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
 
-    //[Benchmark]
+    [Benchmark]
     public ICollection<string> Trie_Pattern_EnumerateByPrefix() =>
         _trie.EnumerateByPrefix([Character.Any, 'c', Character.Any, Character.Any, 't']).ToHashSet();
 
-    //[Benchmark]
+    [Benchmark]
     public ICollection<string> String_PatternMatching() =>
         _words.Where(w => w.Length == 5 && w[1] == 'c' && w[4] == 't').ToHashSet();
 
-    //[Benchmark]
+    [Benchmark]
     public ICollection<string> String_PrefixPatternMatching() =>
         _words.Where(w => w.Length >= 5 && w[1] == 'c' && w[4] == 't').ToHashSet();
 
-    //[Benchmark]
+    [Benchmark]
     public ICollection<string> Regex_PatternMatching() =>
         _words.Where(word => Regex.IsMatch(word, "^.c.{2}t$")).ToHashSet();
 
-    //[Benchmark]
+    [Benchmark]
     public ICollection<string> Regex_PrefixPatternMatching() =>
         _words.Where(word => Regex.IsMatch(word, "^.c.{2}t")).ToHashSet();
 
