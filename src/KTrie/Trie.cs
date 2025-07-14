@@ -233,28 +233,6 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
 
     internal IEnumerable<TerminalCharTrieNode> GetAllTerminalNodes() => TrieEnumerables.GetDescendantTerminalNodes(_root);
 
-    internal static IEnumerable<TerminalCharTrieNode> GetDescendantTerminalNodes1(CharTrieNode node)
-    {
-        Queue<CharTrieNode> queue = new(node.Children);
-
-        while (queue.Count > 0)
-        {
-            var n = queue.Dequeue();
-
-            if (n.IsTerminal)
-            {
-                yield return (TerminalCharTrieNode)n;
-            }
-
-            for (var i = 0; i < n.Children.Length; i++)
-            {
-                queue.Enqueue(n.Children[i]);
-            }
-        }
-
-        //QueuePool<CharTrieNode>.Return(queue);
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal CharTrieNode? GetNode(ReadOnlySpan<char> prefix)
     {
