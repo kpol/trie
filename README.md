@@ -132,19 +132,20 @@ For performance tests I used 370105 English words (from: https://github.com/dwyl
 
 | Method                               | Mean          | Error         | StdDev        | Allocated    |
 |------------------------------------- |--------------:|--------------:|--------------:|-------------:|
-| Load_Trie                            | 274,942.00 us |  5,324.004 us | 13,356.886 us |  88595.87 KB |
-| Load_DictionaryWithAllPrefixes       | 714,563.23 us | 14,096.916 us | 28,796.266 us | 315235.58 KB |
-| Load_DictionaryGroupedByFirstLetter  |  13,731.29 us |    262.344 us |    257.657 us |      8691 KB |
-| EnumerateByPrefix_Trie               |  11,975.54 us |    231.859 us |    367.753 us |   3604.32 KB |
-| StartsWith_Linq                      | 120,723.09 us |  2,383.394 us |  4,047.184 us |   2843.47 KB |
-| StartsWith_Linq_GroupedByFirstLetter |  10,880.59 us |    108.234 us |     90.380 us |   2844.41 KB |
-| StartsWith_DictionaryWithAllPrefixes |   3,957.96 us |     56.184 us |     78.763 us |   2840.66 KB |
-| Trie_EnumerateMatches                |      15.56 us |      0.307 us |      0.529 us |     17.99 KB |
-| Trie_Pattern_EnumerateByPrefix       |      66.30 us |      1.308 us |      1.876 us |     65.59 KB |
-| String_PatternMatching               |   1,014.94 us |     20.714 us |     60.750 us |      1.56 KB |
-| String_PrefixPatternMatching         |   1,046.91 us |     20.888 us |     54.661 us |     33.72 KB |
-| Regex_PatternMatching                |  29,936.00 us |    597.718 us |    930.576 us |      1.56 KB |
-| Regex_PrefixPatternMatching          |  29,145.06 us |    563.901 us |    826.559 us |     33.72 KB |
+| Load_Trie                            | 261,817.07 us |  4,915.639 us |  5,851.719 us |  88595.87 KB |
+| Load_DictionaryWithAllPrefixes       | 645,602.56 us | 12,695.465 us | 11,875.345 us | 315235.58 KB |
+| Load_DictionaryGroupedByFirstLetter  |  13,664.71 us |    217.810 us |    193.083 us |      8691 KB |
+| EnumerateByPrefix_Trie               |   8,911.70 us |    157.403 us |    131.439 us |      2843 KB |
+| StartsWith_String                    | 106,177.20 us |  1,081.102 us |  1,011.264 us |   2840.66 KB |
+| StartsWith_Span                      |  29,212.79 us |    229.247 us |    178.981 us |   2840.66 KB |
+| StartsWith_Linq_GroupedByFirstLetter |  10,859.52 us |     95.205 us |     79.501 us |   2844.41 KB |
+| StartsWith_DictionaryWithAllPrefixes |   3,929.85 us |     77.316 us |     89.037 us |   2840.66 KB |
+| Trie_EnumerateMatches                |      13.96 us |      0.074 us |      0.066 us |     17.99 KB |
+| Trie_Pattern_EnumerateByPrefix       |      60.45 us |      0.879 us |      0.779 us |     50.09 KB |
+| String_PatternMatching               |     931.86 us |      9.207 us |      7.188 us |      1.56 KB |
+| String_PrefixPatternMatching         |     981.95 us |     18.877 us |     18.540 us |     33.72 KB |
+| Regex_PatternMatching                |  29,577.54 us |    210.987 us |    176.184 us |      1.56 KB |
+| Regex_PrefixPatternMatching          |  28,648.33 us |    437.859 us |    409.574 us |     33.72 KB |
 
 ------
 &copy; Kirill Polishchuk

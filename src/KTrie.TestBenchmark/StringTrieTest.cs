@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -83,15 +84,37 @@ public class StringTrieTest
     }
 
     [Benchmark]
-    public ICollection<string> StartsWith_Linq()
+    public ICollection<string> StartsWith_String()
     {
         HashSet<string> result = [];
 
         foreach (var prefix in _prefixes)
         {
-            foreach (var word in _words.Where(w => w.StartsWith(prefix)))
+            foreach (var word in _words)
             {
-                result.Add(word);
+                if (word.StartsWith(prefix))
+                {
+                    result.Add(word);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    [Benchmark]
+    public ICollection<string> StartsWith_Span()
+    {
+        HashSet<string> result = [];
+
+        foreach (var prefix in _prefixes)
+        {
+            foreach (var word in _words)
+            {
+                if (word.AsSpan().StartsWith(prefix))
+                {
+                    result.Add(word);
+                }
             }
         }
 

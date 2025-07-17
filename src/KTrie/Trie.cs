@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace KTrie;
 
@@ -105,17 +106,6 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         return GetTerminalNodesByPrefix(prefix).Select(n => n.Word);
     }
 
-    public IEnumerable<string> EnumerateMatches(IReadOnlyList<Character> pattern)
-    {
-        ArgumentNullException.ThrowIfNull(pattern);
-        ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
-
-        return GetNodesByPattern(pattern)
-                .Where(n => n.IsTerminal)
-                .Cast<TerminalCharTrieNode>()
-                .Select(n => n.Word);
-    }
-
     public IEnumerable<string> EnumerateByPrefix(IReadOnlyList<Character> pattern)
     {
         ArgumentNullException.ThrowIfNull(pattern);
@@ -132,12 +122,23 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
                     yield return ((TerminalCharTrieNode)n).Word;
                 }
 
-                foreach (var terminalNode in GetDescendantTerminalNodes(n))
+                foreach (var terminalNode in TrieEnumerables.GetDescendantTerminalNodes(n))
                 {
                     yield return terminalNode.Word;
                 }
             }
         }
+    }
+
+    public IEnumerable<string> EnumerateMatches(IReadOnlyList<Character> pattern)
+    {
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentOutOfRangeException.ThrowIfZero(pattern.Count);
+
+        return GetNodesByPattern(pattern)
+                .Where(n => n.IsTerminal)
+                .Cast<TerminalCharTrieNode>()
+                .Select(n => n.Word);
     }
 
     internal (CharTrieNode? existingTerminalNode, CharTrieNode parent) AddNodesFromUpToBottom(ReadOnlySpan<char> word)
@@ -196,7 +197,7 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
             yield return (TerminalCharTrieNode)node;
         }
 
-        foreach (var n in GetDescendantTerminalNodes(node))
+        foreach (var n in TrieEnumerables.GetDescendantTerminalNodes(node))
         {
             yield return n;
         }
@@ -230,28 +231,9 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         }
     }
 
-    internal IEnumerable<TerminalCharTrieNode> GetAllTerminalNodes() => GetDescendantTerminalNodes(_root);
+    internal IEnumerable<TerminalCharTrieNode> GetAllTerminalNodes() => TrieEnumerables.GetDescendantTerminalNodes(_root);
 
-    internal static IEnumerable<TerminalCharTrieNode> GetDescendantTerminalNodes(CharTrieNode node)
-    {
-        Queue<CharTrieNode> queue = new(node.Children);
-
-        while (queue.Count > 0)
-        {
-            var n = queue.Dequeue();
-
-            if (n.IsTerminal)
-            {
-                yield return (TerminalCharTrieNode)n;
-            }
-
-            for (var i = 0; i < n.Children.Length; i++)
-            {
-                queue.Enqueue(n.Children[i]);
-            }
-        }
-    }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal CharTrieNode? GetNode(ReadOnlySpan<char> prefix)
     {
         var current = _root;
@@ -425,18 +407,16 @@ public sealed class Trie : ICollection<string>, IReadOnlyCollection<string>
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private CharTrieNode? GetChildNode(CharTrieNode node, char key)
     {
-        for (var i = 0; i < node.Children.Length; i++)
+        var children = node.Children;
+
+        for (int i = 0; i < children.Length; i++)
         {
-            var n = node.Children[i];
-
-            if (_comparer.Equals(key, n.Key))
-            {
-                return n;
-            }
+            if (_comparer.Equals(key, children[i].Key))
+                return children[i];
         }
-
         return null;
     }
 }
